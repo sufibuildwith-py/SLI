@@ -45,7 +45,7 @@ export default function BusinessCard() {
             </div>
 
             <div className="front-website">
-              supremeleatherindustries.com
+              supremeleathers.vercel.app
             </div>
 
             <div className="micro-mark">

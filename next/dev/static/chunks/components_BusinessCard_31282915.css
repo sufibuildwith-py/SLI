@@ -1,0 +1,643 @@
+/* [project]/components/BusinessCard.css [app-client] (css) */
+.business-card {
+  aspect-ratio: 7 / 4;
+  box-sizing: border-box;
+  isolation: isolate;
+  background: #080808;
+  border-radius: 0;
+  flex: none;
+  width: 3.5in;
+  height: 2in;
+  font-family: Jost, sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.front .card-bg {
+  z-index: -2;
+  filter: none;
+  background-image: url("/bg.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: absolute;
+  inset: 0;
+}
+
+.front .card-bg:after {
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(135deg, #000000b8 0%, #00000094 45%, #000000c2 100%);
+  position: absolute;
+  inset: 0;
+}
+
+.front {
+  background: #090909;
+  position: relative;
+  overflow: hidden;
+}
+
+.front-border {
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(90deg, #ffffff0a, #0000 18% 82%, #ffffff0a);
+  border: 3px solid #111;
+  position: absolute;
+  inset: 6px;
+  box-shadow: inset 0 0 0 1px #ffffff29, inset 0 0 0 2px #000000e6, 0 0 10px #00000059;
+}
+
+.front-border:before {
+  content: "";
+  opacity: .8;
+  border: 1px dashed #dcdcdc21;
+  position: absolute;
+  inset: 2px;
+}
+
+.front-border:after {
+  content: "";
+  opacity: .35;
+  background: linear-gradient(90deg, #0000, #ffffff14, #0000);
+  height: 1px;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+}
+
+.front-minimal {
+  text-align: center;
+  z-index: 50;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: absolute;
+  inset: 0;
+}
+
+.front-company {
+  text-transform: uppercase;
+  flex-direction: column;
+  align-items: center;
+  gap: 3.75px;
+  font-family: Jost, sans-serif;
+  display: flex;
+}
+
+.front-company span:first-child {
+  letter-spacing: 7px;
+  text-indent: 7px;
+  background: linear-gradient(105deg, #858585 0%, #f7f7f7 18%, #b8b8b8 38%, #fff 52%, #858585 72%, #e8e8e8 88%, #707070 100%);
+  color: #0000;
+  filter: drop-shadow(0 2px 7px #000000b3);
+  -webkit-background-clip: text;
+  background-clip: text;
+  font-family: Cormorant Garamond, serif;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: .9;
+}
+
+.front-company .company-industries {
+  letter-spacing: 4px;
+  text-indent: 5px;
+  color: #cdcdcdb8;
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  filter: none;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.front-slogan {
+  z-index: 20;
+  letter-spacing: 3px;
+  text-indent: 3px;
+  color: #bebebe94;
+  white-space: nowrap;
+  width: max-content;
+  font-family: Jost, sans-serif;
+  font-size: 6px;
+  font-weight: 500;
+  position: absolute;
+  bottom: 38px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.front-website {
+  z-index: 20;
+  letter-spacing: 1.8px;
+  color: #ffffffb8;
+  white-space: nowrap;
+  width: max-content;
+  font-family: Jost, sans-serif;
+  font-size: 5.5px;
+  font-weight: 300;
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.front .since-mark, .front .micro-mark {
+  z-index: 50;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #dcdcdc69;
+  text-shadow: 0 1px 6px #000000e6;
+  pointer-events: none;
+  font-family: Jost, sans-serif;
+  font-size: 4.8px;
+  font-weight: 400;
+  line-height: 1;
+  position: absolute;
+  top: 23px;
+}
+
+.front .since-mark {
+  left: 30px;
+}
+
+.front .micro-mark {
+  right: 30px;
+}
+
+@media print {
+  @page {
+    size: auto;
+    margin: 0;
+  }
+
+  html, body {
+    background: #fff;
+    margin: 0;
+    padding: 0;
+  }
+
+  .business-card {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    width: 3.5in;
+    height: 2in;
+  }
+}
+
+.business-card.front:after {
+  content: "SINCE 1995";
+  z-index: 9999;
+  letter-spacing: 1.8px;
+  white-space: nowrap;
+  color: #ffffff69;
+  text-shadow: 0 1px 4px #000000e6;
+  pointer-events: none;
+  font-family: Jost, sans-serif;
+  font-size: 4.5px;
+  font-weight: 400;
+  line-height: 1;
+  display: block;
+  position: absolute;
+  top: 23px;
+  left: 30px;
+}
+
+.back {
+  box-sizing: border-box;
+  color: #eee;
+  isolation: isolate;
+  background: #080808;
+  width: 3.5in;
+  height: 2in;
+  position: relative;
+  overflow: hidden;
+}
+
+.back .card-bg {
+  z-index: 0;
+  filter: grayscale() brightness(48%) contrast(88%);
+  opacity: .72;
+  pointer-events: none;
+  background-image: linear-gradient(#04040459, #04040459), url("/leather-process.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  position: absolute;
+  inset: 0;
+}
+
+.back:after {
+  content: "";
+  z-index: 1;
+  opacity: .055;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  background-image: url("/bg.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: absolute;
+  inset: 0;
+}
+
+.back-overlay {
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(#ffffff06 0%, #0000 45%, #00000061 100%);
+  position: absolute;
+  inset: 0;
+}
+
+.back > :not(.card-bg):not(.back-overlay) {
+  z-index: 5;
+  position: relative;
+}
+
+.back-border {
+  box-sizing: border-box;
+  pointer-events: none;
+  background: linear-gradient(90deg, #ffffff0a, #0000 18% 82%, #ffffff0a);
+  border: 3px solid #111;
+  box-shadow: inset 0 0 0 1px #ffffff29, inset 0 0 0 2px #000000e6, 0 0 10px #00000059;
+  z-index: 50 !important;
+  width: auto !important;
+  height: auto !important;
+  position: absolute !important;
+  inset: 6px !important;
+}
+
+.back-border:before {
+  content: "";
+  opacity: .8;
+  border: 1px dashed #dcdcdc21;
+  position: absolute;
+  inset: 2px;
+}
+
+.back-border:after {
+  content: "";
+  opacity: .35;
+  background: linear-gradient(90deg, #0000, #ffffff14, #0000);
+  height: 1px;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+}
+
+.back-content {
+  z-index: 10;
+  box-sizing: border-box;
+  color: #eee;
+  flex-direction: column;
+  padding: 20px 28px 18px;
+  font-family: Jost, sans-serif;
+  display: flex;
+  position: absolute;
+  inset: 0;
+}
+
+.back-header {
+  align-items: baseline;
+  gap: 5px;
+  margin-bottom: 7px;
+  display: flex;
+}
+
+.back-brand {
+  letter-spacing: 3.2px;
+  background: linear-gradient(105deg, #777 0%, #f5f5f5 22%, #a9a9a9 42%, #fff 54%, #7b7b7b 76%, #dedede 100%);
+  color: #0000;
+  filter: drop-shadow(0 1px 4px #000c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  font-family: Cormorant Garamond, serif;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.back-brand-sub {
+  letter-spacing: 2px;
+  color: #d2d2d294;
+  font-family: Jost, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.back-kicker {
+  letter-spacing: 1.7px;
+  color: #dcdcdca6;
+  margin-bottom: 4px;
+  font-size: 9px;
+  font-weight: 500;
+  display: block;
+}
+
+.back-description {
+  max-width: 245px;
+}
+
+.back-description p {
+  letter-spacing: .28px;
+  color: #e1e1e1ad;
+  text-align: left;
+  margin: 0;
+  font-family: Jost, sans-serif;
+  font-size: 5px;
+  font-weight: 300;
+  line-height: 1.55;
+}
+
+.back-divider {
+  opacity: .9;
+  background: linear-gradient(90deg, #ffffff38, #ffffff0f 55%, #0000);
+  width: 100%;
+  height: 1px;
+  margin: 8px 0 7px;
+}
+
+.back-owners {
+  gap: 32px;
+  margin-bottom: 8px;
+  display: flex;
+}
+
+.owner {
+  flex-direction: column;
+  min-width: 70px;
+  display: flex;
+}
+
+.owner-label {
+  letter-spacing: 1.5px;
+  color: #b4b4b46b;
+  margin-bottom: 1px;
+  font-size: 3.9px;
+}
+
+.owner-name {
+  letter-spacing: 1.8px;
+  color: #f0f0f0e0;
+  font-family: Cormorant Garamond, serif;
+  font-size: 7.5px;
+  font-weight: 500;
+}
+
+.owner-phone {
+  letter-spacing: .8px;
+  color: #c8c8c89e;
+  margin-top: 1px;
+  font-size: 6px;
+  font-weight: 300;
+}
+
+.back-footer {
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 15px;
+  margin-top: auto;
+  display: flex;
+}
+
+.back-contact {
+  letter-spacing: .45px;
+  color: #cdcdcd94;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 4.4px;
+  font-weight: 300;
+  display: flex;
+}
+
+.back-address {
+  letter-spacing: .45px;
+  text-align: right;
+  color: #cdcdcd94;
+  max-width: 125px;
+  font-size: 4.9px;
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+.back-content:after {
+  content: "MANUFACTURER · SUPPLIER";
+  letter-spacing: 1.4px;
+  color: #d2d2d252;
+  font-family: Jost, sans-serif;
+  font-size: 4.9px;
+  font-weight: 400;
+  position: absolute;
+  top: 20px;
+  right: 28px;
+}
+
+.card-scene {
+  aspect-ratio: 7 / 4;
+  perspective: 1800px;
+  justify-content: center;
+  align-items: center;
+  width: min(88vw, 900px);
+  display: flex;
+  position: relative;
+}
+
+.card-flipper {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  will-change: transform;
+  transition: transform 1.15s cubic-bezier(.16, 1, .3, 1);
+  position: relative;
+}
+
+.card-flipper.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: absolute;
+  inset: 0;
+}
+
+.card-front {
+  transform: rotateY(0);
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+.card-flipper:after {
+  content: "";
+  filter: blur(28px);
+  z-index: -1;
+  pointer-events: none;
+  background: #000000d9;
+  border-radius: 50%;
+  height: 18%;
+  position: absolute;
+  bottom: -8%;
+  left: 8%;
+  right: 8%;
+  transform: translateZ(-40px);
+}
+
+.card-scene:before {
+  content: "";
+  filter: blur(35px);
+  pointer-events: none;
+  background: radial-gradient(circle, #ffffff13 0%, #ffffff06 35%, #0000 70%);
+  border-radius: 50%;
+  width: 75%;
+  height: 75%;
+  animation: 7s ease-in-out infinite cardAmbient;
+  position: absolute;
+}
+
+@keyframes cardAmbient {
+  0%, 100% {
+    opacity: .7;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+.card-hint {
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #ffffff59;
+  white-space: nowrap;
+  pointer-events: none;
+  font-family: Jost, sans-serif;
+  font-size: 9px;
+  font-weight: 400;
+  position: absolute;
+  bottom: -58px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+@media (max-width: 700px) {
+  .card-scene {
+    width: 88vw;
+  }
+
+  .card-page {
+    box-sizing: border-box;
+    min-height: 100svh;
+    padding: 0 16px;
+  }
+
+  .brand-header {
+    top: 22px;
+    left: 20px;
+    right: 20px;
+  }
+
+  .brand-name {
+    letter-spacing: 2.5px;
+    font-size: 7px;
+  }
+
+  .brand-year {
+    letter-spacing: 2px;
+    font-size: 6px;
+  }
+
+  .hero-copy {
+    width: 100%;
+    top: 82px;
+  }
+
+  .hero-eyebrow {
+    letter-spacing: 2.5px;
+    margin-bottom: 14px;
+    font-size: 6px;
+  }
+
+  .hero-copy h1 {
+    letter-spacing: 2px;
+    font-size: clamp(27px, 8vw, 38px);
+    line-height: .9;
+  }
+
+  .hero-copy h1 span {
+    letter-spacing: 5px;
+    margin-top: 7px;
+    font-size: .45em;
+  }
+
+  .card-scene {
+    aspect-ratio: 7 / 4;
+    width: 90vw;
+    max-width: none;
+  }
+
+  .card-hint {
+    letter-spacing: 2.5px;
+    font-size: 7px;
+    bottom: -42px;
+  }
+
+  .presentation-footer {
+    letter-spacing: 2px;
+    font-size: 6px;
+    bottom: 22px;
+    left: 20px;
+    right: 20px;
+  }
+
+  .footer-line {
+    width: 35px;
+  }
+
+  .card-page .card-scene:after {
+    filter: blur(35px);
+    width: 90%;
+    height: 90%;
+  }
+}
+
+@media (max-width: 400px) {
+  .hero-copy {
+    top: 76px;
+  }
+
+  .hero-copy h1 {
+    font-size: 27px;
+  }
+
+  .hero-copy h1 span {
+    letter-spacing: 4px;
+  }
+
+  .hero-eyebrow {
+    letter-spacing: 2px;
+    font-size: 5px;
+  }
+
+  .card-scene {
+    width: 92vw;
+  }
+
+  .presentation-footer {
+    bottom: 18px;
+  }
+}
+
+/*# sourceMappingURL=components_BusinessCard_31282915.css.map*/

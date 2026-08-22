@@ -1,4 +1,16 @@
-@import url("https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap");
+
+/* =========================================================
+   SUPREME LEATHER INDUSTRIES
+   GLOBAL — LUXURY PRESENTATION
+   ========================================================= */
+
+:root {
+  color-scheme: dark;
+  font-family: "Jost", sans-serif;
+  background: #020202;
+  color: #fff;
+}
 
 * {
   box-sizing: border-box;
@@ -6,33 +18,587 @@
 
 html,
 body {
+  width: 100%;
+  min-height: 100%;
   margin: 0;
   padding: 0;
-  min-height: 100%;
+}
+
+html {
+  background: #020202;
 }
 
 body {
+  min-height: 100vh;
+  overflow-x: hidden;
+
+  color: #fff;
   font-family: "Jost", sans-serif;
-  background: #ececec;
+
+  background:
+    radial-gradient(
+      ellipse 120% 85% at 50% -10%,
+      #1b1b1b 0%,
+      #101010 28%,
+      #070707 58%,
+      #020202 100%
+    );
+
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
+
+button,
+a {
+  font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+
+/* =========================================================
+   MAIN PRESENTATION
+   ========================================================= */
 
 .card-page {
+  position: relative;
+
+  width: 100%;
   min-height: 100vh;
+  min-height: 100svh;
+
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 50px;
-  padding: 50px 25px;
+
+  overflow: hidden;
+  isolation: isolate;
+
+  background:
+    /* upper architectural reflection */
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.018) 0%,
+      transparent 22%
+    ),
+
+    /* extremely subtle side atmosphere */
+    radial-gradient(
+      ellipse 45% 90% at -10% 50%,
+      rgba(255,255,255,.012),
+      transparent 72%
+    ),
+
+    radial-gradient(
+      ellipse 45% 90% at 110% 50%,
+      rgba(255,255,255,.009),
+      transparent 72%
+    ),
+
+    /* center stays controlled */
+    radial-gradient(
+      ellipse 75% 65% at 50% 48%,
+      rgba(255,255,255,.012),
+      transparent 68%
+    );
 }
 
-@media print {
-  body {
-    background: white;
+
+/* =========================================================
+   OBSIDIAN SURFACE
+   Very subtle diagonal material structure
+   ========================================================= */
+
+.card-page::before {
+  content: "";
+
+  position: absolute;
+  inset: -40%;
+
+  pointer-events: none;
+
+  background:
+    repeating-linear-gradient(
+      112deg,
+      transparent 0,
+      transparent 140px,
+      rgba(255,255,255,.008) 141px,
+      transparent 142px,
+      transparent 280px
+    );
+
+  transform: rotate(-5deg);
+
+  opacity: .75;
+
+  z-index: -3;
+}
+
+
+/* =========================================================
+   MICRO GRAIN
+   ========================================================= */
+
+.card-page::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  opacity: .025;
+
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='.55'/%3E%3C/svg%3E");
+
+  z-index: 50;
+}
+
+
+/* =========================================================
+   INTERACTIVE METALLIC SWEEP
+   This is NOT a glow behind the card.
+   It is a slow environmental reflection.
+   ========================================================= */
+
+.card-page .light-sweep {
+  position: absolute;
+
+  top: -60%;
+  left: -35%;
+
+  width: 18vw;
+  min-width: 120px;
+  max-width: 240px;
+
+  height: 220%;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255,255,255,.008) 25%,
+      rgba(255,255,255,.028) 48%,
+      rgba(255,255,255,.008) 72%,
+      transparent 100%
+    );
+
+  filter: blur(24px);
+
+  transform: rotate(18deg);
+
+  opacity: .7;
+
+  animation:
+    luxurySweep 18s
+    cubic-bezier(.45,0,.55,1)
+    infinite;
+
+  z-index: -1;
+}
+
+@keyframes luxurySweep {
+
+  0% {
+    transform:
+      translateX(-45vw)
+      rotate(18deg);
   }
 
+  45% {
+    transform:
+      translateX(75vw)
+      rotate(18deg);
+  }
+
+  100% {
+    transform:
+      translateX(145vw)
+      rotate(18deg);
+  }
+
+}
+
+
+/* =========================================================
+   SECONDARY REFLECTION
+   Barely visible — gives the background depth
+   ========================================================= */
+
+.card-page .light-sweep::after {
+  content: "";
+
+  position: absolute;
+
+  left: -80px;
+  top: 0;
+
+  width: 35px;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      180deg,
+      transparent,
+      rgba(255,255,255,.025),
+      transparent
+    );
+
+  filter: blur(14px);
+}
+
+
+/* =========================================================
+   TOP BRAND HEADER
+   ========================================================= */
+
+.brand-header {
+  position: absolute;
+
+  top: 34px;
+  left: 42px;
+  right: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  z-index: 10;
+
+  pointer-events: none;
+}
+
+.brand-name {
+  font-family: "Jost", sans-serif;
+
+  font-size: 9px;
+  font-weight: 500;
+
+  letter-spacing: 4px;
+
+  color: rgba(255,255,255,.52);
+}
+
+.brand-year {
+  font-family: "Jost", sans-serif;
+
+  font-size: 8px;
+  font-weight: 400;
+
+  letter-spacing: 3px;
+
+  color: rgba(255,255,255,.25);
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.hero-copy {
+  position: absolute;
+
+  top: 92px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  width: 100%;
+
+  text-align: center;
+
+  z-index: 5;
+
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  margin-bottom: 18px;
+
+  font-family: "Jost", sans-serif;
+
+  font-size: 7px;
+  font-weight: 400;
+
+  letter-spacing: 4px;
+
+  color: rgba(255,255,255,.27);
+
+  text-transform: uppercase;
+}
+
+.hero-copy h1 {
+  margin: 0;
+
+  font-family: "Cormorant Garamond", serif;
+
+  font-size: clamp(30px, 4vw, 52px);
+  font-weight: 400;
+
+  line-height: .85;
+
+  letter-spacing: 4px;
+
+  color: rgba(255,255,255,.82);
+
+  text-shadow:
+    0 1px 20px rgba(0,0,0,.35);
+}
+
+.hero-copy h1 span {
+  display: block;
+
+  margin-top: 8px;
+
+  font-family: "Jost", sans-serif;
+
+  font-size: .48em;
+  font-weight: 400;
+
+  letter-spacing: 8px;
+
+  color: rgba(255,255,255,.24);
+}
+
+
+/* =========================================================
+   HORIZONTAL ARCHITECTURAL LINE
+   ========================================================= */
+
+.card-page .light-line {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: min(80vw, 1100px);
+
+  height: 1px;
+
+  transform: translate(-50%, -50%);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255,255,255,.035) 25%,
+      rgba(255,255,255,.055) 50%,
+      rgba(255,255,255,.035) 75%,
+      transparent 100%
+    );
+
+  opacity: .55;
+
+  pointer-events: none;
+
+  z-index: -1;
+}
+
+
+/* =========================================================
+   PRESENTATION FOOTER
+   ========================================================= */
+
+.presentation-footer {
+  position: absolute;
+
+  left: 42px;
+  right: 42px;
+  bottom: 34px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 18px;
+
+  font-family: "Jost", sans-serif;
+
+  font-size: 7px;
+  font-weight: 400;
+
+  letter-spacing: 3px;
+
+  color: rgba(255,255,255,.25);
+
+  z-index: 10;
+
+  pointer-events: none;
+}
+
+.footer-line {
+  width: 60px;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,.02),
+      rgba(255,255,255,.16),
+      rgba(255,255,255,.02)
+    );
+}
+
+
+/* =========================================================
+   ACCESSIBILITY / MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .card-page .light-sweep {
+    animation: none;
+  }
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .brand-header {
+    left: 28px;
+    right: 28px;
+  }
+
+  .presentation-footer {
+    left: 28px;
+    right: 28px;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
   .card-page {
-    padding: 0;
-    gap: 0;
+    min-height: 100svh;
+
+    padding:
+      0 16px;
+  }
+
+
+  /* Header */
+
+  .brand-header {
+    top: 22px;
+
+    left: 20px;
+    right: 20px;
+  }
+
+  .brand-name {
+    font-size: 7px;
+    letter-spacing: 2.5px;
+  }
+
+  .brand-year {
+    font-size: 6px;
+    letter-spacing: 2px;
+  }
+
+
+  /* Hero */
+
+  .hero-copy {
+    top: 82px;
+  }
+
+  .hero-eyebrow {
+    margin-bottom: 14px;
+
+    font-size: 6px;
+    letter-spacing: 2.5px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(27px, 8vw, 38px);
+
+    letter-spacing: 2px;
+  }
+
+  .hero-copy h1 span {
+    margin-top: 7px;
+
+    font-size: .45em;
+
+    letter-spacing: 5px;
+  }
+
+
+  /* Footer */
+
+  .presentation-footer {
+    left: 20px;
+    right: 20px;
+    bottom: 22px;
+
+    font-size: 6px;
+
+    letter-spacing: 2px;
+
+    gap: 12px;
+  }
+
+  .footer-line {
+    width: 35px;
+  }
+
+
+  /* Background sweep becomes more restrained */
+
+  .card-page .light-sweep {
+    width: 100px;
+
+    opacity: .45;
+
+    filter: blur(20px);
+  }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+  .hero-copy {
+    top: 76px;
+  }
+
+  .hero-eyebrow {
+    font-size: 5px;
+    letter-spacing: 2px;
+  }
+
+  .hero-copy h1 {
+    font-size: 27px;
+  }
+
+  .hero-copy h1 span {
+    letter-spacing: 4px;
+  }
+
+  .presentation-footer {
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+
+    font-size: 5px;
+  }
+
+  .card-page .light-sweep {
+    opacity: .35;
   }
 }

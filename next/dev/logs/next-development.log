@@ -1,0 +1,138 @@
+[00:00:01.061] Server  LOG      ✓ Ready in 766ms
+[00:00:07.096] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:21.140] Server  LOG      ✓ Compiled in 7ms
+[00:01:33.636] Server  LOG      ✓ Compiled in 56ms
+[00:05:33.069] Server  LOG      ✓ Compiled in 270ms
+[00:06:13.437] Server  LOG      ✓ Compiled in 21ms
+[00:06:49.190] Server  LOG      ✓ Compiled in 20ms
+[00:07:02.984] Server  LOG      ✓ Compiled in 27ms
+[00:07:51.838] Server  LOG      ✓ Compiled in 16ms
+[00:08:51.054] Server  LOG      ✓ Compiled in 22ms
+[00:09:06.748] Server  LOG      ✓ Compiled in 23ms
+[00:09:32.382] Server  LOG      ✓ Compiled in 23ms
+[00:09:36.532] Server  LOG      ✓ Compiled in 35ms
+[00:10:12.557] Server  LOG      ✓ Compiled in 30ms
+[00:10:21.011] Server  LOG      ✓ Compiled in 23ms
+[00:10:27.683] Server  LOG      ✓ Compiled in 62ms
+[00:11:59.049] Browser ERROR   ./components/BusinessCard.tsx:1:10
+Ecmascript file had an error
+> 1 | import { useState } from "react";
+    |          ^^^^^^^^
+  2 | import type { CSSProperties } from "react";
+  3 | import "./BusinessCard.css";
+  4 |
+
+You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+
+ Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+
+Import trace:
+  Server Component:
+    ./components/BusinessCard.tsx
+    ./app/page.tsx
+[00:14:43.804] Server  LOG      ✓ Compiled in 17ms
+[00:15:30.673] Server  LOG      ✓ Compiled in 7ms
+[00:15:48.122] Server  LOG      ✓ Compiled in 33ms
+[00:16:11.550] Server  LOG      ✓ Compiled in 10ms
+[00:16:19.945] Server  LOG      ✓ Compiled in 17ms
+[00:16:25.118] Server  LOG      ✓ Compiled in 7ms
+[00:16:32.734] Server  LOG      ✓ Compiled in 158ms
+[00:17:59.492] Server  LOG      ✓ Compiled in 13ms
+[00:18:30.773] Server  LOG      ✓ Compiled in 11ms
+[00:18:37.695] Server  LOG      ✓ Compiled in 12ms
+[00:19:02.962] Server  LOG      ✓ Compiled in 13ms
+[00:19:16.987] Server  LOG      ✓ Compiled in 8ms
+[00:19:40.924] Server  LOG      ✓ Compiled in 9ms
+[00:19:50.890] Server  LOG      ✓ Compiled in 26ms
+[00:19:58.545] Server  LOG      ✓ Compiled in 20ms
+[00:21:19.159] Server  LOG      ✓ Compiled in 16ms
+[00:21:23.095] Server  LOG      ✓ Compiled in 10ms
+[00:21:31.282] Server  LOG      ✓ Compiled in 11ms
+[00:23:07.080] Server  LOG      ✓ Compiled in 11ms
+[00:23:11.016] Server  LOG      ✓ Compiled in 11ms
+[00:23:17.513] Server  LOG      ✓ Compiled in 10ms
+[00:23:30.125] Server  LOG      ✓ Compiled in 12ms
+[00:23:35.797] Server  LOG      ✓ Compiled in 8ms
+[00:23:47.594] Server  LOG      ✓ Compiled in 8ms
+[00:23:55.107] Server  LOG      ✓ Compiled in 10ms
+[00:26:04.493] Server  LOG      ✓ Compiled in 31ms
+[00:27:18.598] Server  LOG      ✓ Compiled in 9ms
+[00:27:56.726] Server  LOG      ✓ Compiled in 9ms
+[00:28:17.631] Server  LOG      ✓ Compiled in 10ms
+[00:28:20.841] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:28:20.944] Browser LOG     [LookGood Live:patcher] Communication channel established
+[00:28:28.636] Server  LOG      ✓ Compiled in 8ms
+[00:28:30.434] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:28:30.559] Browser LOG     [LookGood Live:patcher] Communication channel established
+[00:28:33.410] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:28:33.531] Browser LOG     [LookGood Live:patcher] Communication channel established
+[00:29:01.665] Server  LOG      ✓ Compiled in 8ms
+[00:29:07.416] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:29:07.519] Browser LOG     [LookGood Live:patcher] Communication channel established
+[00:29:25.767] Server  LOG      ✓ Compiled in 9ms
+[00:29:33.196] Server  LOG      ✓ Compiled in 9ms
+[00:29:42.925] Server  LOG      ✓ Compiled in 11ms
+[00:29:48.536] Server  LOG      ✓ Compiled in 9ms
+[00:29:51.923] Server  LOG      ✓ Compiled in 9ms
+[00:30:02.185] Server  LOG      ✓ Compiled in 9ms
+[00:30:42.815] Server  LOG      ✓ Compiled in 12ms
+[00:30:58.705] Server  LOG      ✓ Compiled in 80ms
+[00:30:58.809] Browser ERROR   ./app/globals.css
+Error evaluating Node.js code
+CssSyntaxError: C:\Users\xtrar\Desktop\card files\card\app\globals.css:13:8: Missed semicolon
+    [at Input.error (turbopack:///[project]/node_modules/postcss/lib/input.js:135:16)]
+    [at Parser.checkMissedSemicolon (turbopack:///[project]/node_modules/postcss/lib/parser.js:145:22)]
+    [at Parser.decl (turbopack:///[project]/node_modules/postcss/lib/parser.js:303:12)]
+    [at Parser.other (turbopack:///[project]/node_modules/postcss/lib/parser.js:408:18)]
+    [at Parser.parse (turbopack:///[project]/node_modules/postcss/lib/parser.js:479:16)]
+    [at parse (turbopack:///[project]/node_modules/postcss/lib/parse.js:11:12)]
+    [at new LazyResult (turbopack:///[project]/node_modules/postcss/lib/lazy-result.js:171:16)]
+    [at Processor.process (turbopack:///[project]/node_modules/postcss/lib/processor.js:53:14)]
+    [at transform (turbopack:///[turbopack-node]/transforms/postcss.ts:70:51)]
+    [at run (turbopack:///[turbopack-node]/ipc/evaluate.ts:92:29)]
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+[00:31:08.911] Server  LOG      ✓ Compiled in 14ms
+[00:31:12.399] Server  LOG      ✓ Compiled in 18ms
+[00:31:19.465] Server  LOG      ✓ Compiled in 16ms
+[00:31:32.734] Server  LOG      ✓ Compiled in 13ms
+[00:31:35.383] Server  LOG      ✓ Compiled in 13ms
+[00:31:53.897] Server  LOG      ✓ Compiled in 11ms
+[00:32:01.254] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:32:01.386] Browser LOG     [LookGood Live:patcher] Communication channel established
+[00:32:12.631] Server  LOG      ✓ Compiled in 11ms
+[00:33:15.520] Server  LOG      ✓ Compiled in 12ms
+[00:33:29.839] Server  LOG      ✓ Compiled in 12ms
+[00:33:34.703] Server  LOG      ✓ Compiled in 9ms
+[00:33:51.238] Server  LOG      ✓ Compiled in 40ms
+[00:34:13.579] Server  LOG      ✓ Compiled in 10ms
+[00:34:17.197] Server  LOG      ✓ Compiled in 16ms
+[00:34:50.136] Server  LOG      ✓ Compiled in 10ms
+[00:34:55.712] Server  LOG      ✓ Compiled in 10ms
+[00:35:05.071] Server  LOG      ✓ Compiled in 8ms
+[00:35:15.584] Server  LOG      ✓ Compiled in 16ms
+[00:36:51.293] Server  LOG      ✓ Compiled in 56ms
+[00:36:52.027] Browser ERROR   ./app/globals.css
+Error evaluating Node.js code
+CssSyntaxError: C:\Users\xtrar\Desktop\card files\card\app\globals.css:86:1: Unexpected }
+    [at Input.error (turbopack:///[project]/node_modules/postcss/lib/input.js:135:16)]
+    [at Parser.unexpectedClose (turbopack:///[project]/node_modules/postcss/lib/parser.js:594:22)]
+    [at Parser.end (turbopack:///[project]/node_modules/postcss/lib/parser.js:337:12)]
+    [at Parser.parse (turbopack:///[project]/node_modules/postcss/lib/parser.js:463:16)]
+    [at parse (turbopack:///[project]/node_modules/postcss/lib/parse.js:11:12)]
+    [at new LazyResult (turbopack:///[project]/node_modules/postcss/lib/lazy-result.js:171:16)]
+    [at Processor.process (turbopack:///[project]/node_modules/postcss/lib/processor.js:53:14)]
+    [at transform (turbopack:///[turbopack-node]/transforms/postcss.ts:70:51)]
+    [at run (turbopack:///[turbopack-node]/ipc/evaluate.ts:92:29)]
+    [at run (turbopack:///[turbopack-node]/ipc/evaluate.ts:115:11)]
+
+Import trace:
+  Client Component Browser:
+    ./app/globals.css [Client Component Browser]
+    ./app/layout.tsx [Server Component]
+[00:39:56.310] Server  LOG      ✓ Compiled in 21ms
+[00:40:20.407] Server  LOG      ✓ Compiled in 59ms
+[00:41:41.798] Server  LOG      ✓ Compiled in 10ms

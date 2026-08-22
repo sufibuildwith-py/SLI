@@ -1,0 +1,759 @@
+/* =========================================================
+   SUPREME LEATHER INDUSTRIES
+   PREMIUM BUSINESS CARD
+   3.5 × 2 inches
+   ========================================================= */
+
+.business-card {
+  position: relative;
+  width: 3.5in;
+  height: 2in;
+  aspect-ratio: 7 / 4;
+  overflow: hidden;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  border-radius: 0;
+  font-family: "Jost", sans-serif;
+  isolation: isolate;
+  background: #080808;
+}
+
+/* =========================================================
+   FRONT — REAL LEATHER IMAGE / VERY SUBTLE
+   ========================================================= */
+
+.front .card-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+
+  background-image: url("/bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* Slightly darken the leather */
+  filter: none;
+}
+
+/* Elegant black veil over the leather */
+.front .card-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.72) 0%,
+      rgba(0, 0, 0, 0.58) 45%,
+      rgba(0, 0, 0, 0.76) 100%
+    );
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   FRONT
+   ========================================================= */
+
+.front {
+  position: relative;
+  overflow: hidden;
+  background: #090909;
+}
+
+/* Subtle metallic frame */
+.front-border {
+  position: absolute;
+  inset: 6px;
+  z-index: 4;
+  pointer-events: none;
+
+  border: 3px solid #111;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,.04),
+      transparent 18%,
+      transparent 82%,
+      rgba(255,255,255,.04)
+    );
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.16),
+    inset 0 0 0 2px rgba(0,0,0,.9),
+    0 0 10px rgba(0,0,0,.35);
+}
+
+.front-border::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+
+  border: 1px dashed rgba(220,220,220,.13);
+
+  opacity: .8;
+}
+
+.front-border::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.08),
+    transparent
+  );
+
+  opacity: .35;
+}
+
+/* Center */
+.front-minimal {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+  z-index: 50;
+}
+
+/* Company */
+.front-company {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3.75px;
+
+  font-family: "Jost", sans-serif;
+  text-transform: uppercase;
+}
+
+.front-company span:first-child {
+  font-size: 20px;
+  line-height: .9;
+  font-weight: 500;
+  letter-spacing: 7px;
+  text-indent: 7px;
+font-family: "Cormorant Garamond", serif;
+  background: linear-gradient(
+    105deg,
+    #858585 0%,
+    #f7f7f7 18%,
+    #b8b8b8 38%,
+    #ffffff 52%,
+    #858585 72%,
+    #e8e8e8 88%,
+    #707070 100%
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  filter:
+    drop-shadow(0 2px 7px rgba(0,0,0,.7));
+}
+
+.front-company .company-industries {
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: 4px;
+  text-indent: 5px;
+
+  color: rgba(205,205,205,.72);
+
+  /* resets the metallic treatment */
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  filter: none;
+}
+/* Slogan */
+/* Slogan — positioned just above website */
+.front-slogan {
+  position: absolute;
+  bottom: 38px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+
+  width: max-content;
+
+  font-family: "Jost", sans-serif;
+  font-size: 6px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-indent: 3px;
+
+  color: rgba(190, 190, 190, 0.58);
+  white-space: nowrap;
+}
+
+/* Website */
+.front-website {
+  position: absolute;
+
+  bottom: 24px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  z-index: 20;
+
+  width: max-content;
+
+  font-family: "Jost", sans-serif;
+
+  font-size: 5.5px;
+  font-weight: 300;
+
+  letter-spacing: 1.8px;
+
+  color: rgba(255,255,255,.72);
+
+  white-space: nowrap;
+}
+
+/* Corner information */
+.front .since-mark,
+.front .micro-mark {
+  position: absolute;
+  top: 23px;
+  z-index: 50;
+
+  font-family: "Jost", sans-serif;
+  font-size: 4.8px;
+  font-weight: 400;
+  line-height: 1;
+
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  color: rgba(220, 220, 220, 0.41);
+
+  text-shadow:
+    0 1px 6px rgba(0, 0, 0, 0.9);
+
+  pointer-events: none;
+}
+
+.front .since-mark {
+  left: 30px;
+}
+
+.front .micro-mark {
+  right: 30px;
+}
+
+/* =========================================================
+   PRINT / PDF
+   ========================================================= */
+
+@media print {
+
+  @page {
+    size: auto;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+
+    background: white;
+  }
+
+  .business-card {
+    width: 3.5in;
+    height: 2in;
+
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}/* =========================================================
+   FORCE "SINCE 1995" ON FRONT CARD
+   ========================================================= */
+
+.business-card.front::after {
+  content: "SINCE 1995";
+
+  position: absolute;
+  top: 23px;
+  left: 30px;
+
+  display: block;
+
+  z-index: 9999;
+
+  font-family: "Jost", sans-serif;
+  font-size: 4.5px;
+  font-weight: 400;
+  line-height: 1;
+
+  letter-spacing: 1.8px;
+  white-space: nowrap;
+
+  color: rgba(255, 255, 255, 0.41);
+
+  text-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.9);
+
+  pointer-events: none;
+}
+/* =========================================================
+   BACK CARD
+   ========================================================= */
+/* =========================================================
+   BACK CARD — CLEAN BASE
+   ========================================================= */
+
+.back {
+  position: relative;
+  width: 3.5in;
+  height: 2in;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  background: #080808;
+  color: #eee;
+
+  isolation: isolate;
+}
+
+
+/* =========================================================
+   BACK — LEATHER CRAFT IMAGE
+   ========================================================= */
+.back .card-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  background-image:
+    linear-gradient(
+      rgba(4,4,4,.35),
+      rgba(4,4,4,.35)
+    ),
+    url("/leather-process.jpg");
+
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  filter:
+    grayscale(100%)
+    brightness(48%)
+    contrast(88%);
+
+  opacity: .72;
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   BACK — FRONT LEATHER TEXTURE
+   Very subtle layer from /bg.jpg
+   ========================================================= */
+.back::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  z-index: 1;
+
+  background-image: url("/bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  opacity: .055;
+
+  mix-blend-mode: screen;
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   BACK — DARK PREMIUM VIGNETTE
+   ========================================================= */
+.back-overlay {
+  position: absolute;
+  inset: 0;
+
+  z-index: 2;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255,255,255,.025) 0%,
+      transparent 45%,
+      rgba(0,0,0,.38) 100%
+    );
+}
+
+
+/* =========================================================
+   BACK — CONTENT LAYER
+   ========================================================= */
+
+.back > *:not(.card-bg):not(.back-overlay) {
+  position: relative;
+  z-index: 5;
+}
+/* =========================================================
+   BACK — FULL BORDER / SAME AS FRONT
+   ========================================================= */
+
+.back-border {
+  position: absolute !important;
+  top: 6px !important;
+  right: 6px !important;
+  bottom: 6px !important;
+  left: 6px !important;
+
+  width: auto !important;
+  height: auto !important;
+
+  box-sizing: border-box;
+
+  z-index: 50 !important;
+  pointer-events: none;
+
+  border: 3px solid #111;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,.04),
+      transparent 18%,
+      transparent 82%,
+      rgba(255,255,255,.04)
+    );
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.16),
+    inset 0 0 0 2px rgba(0,0,0,.9),
+    0 0 10px rgba(0,0,0,.35);
+}
+
+
+/* Inner subtle stitching */
+
+.back-border::before {
+  content: "";
+
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  bottom: 2px;
+  left: 2px;
+
+  border: 1px dashed rgba(220,220,220,.13);
+
+  opacity: .8;
+}
+
+
+/* Subtle horizontal reflection */
+
+.back-border::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  top: 50%;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.08),
+      transparent
+    );
+
+  opacity: .35;
+}
+/* =========================================================
+   BACK CARD — PREMIUM EDITORIAL LAYOUT
+   ========================================================= */
+
+.back-content {
+  position: absolute;
+  inset: 0;
+
+  z-index: 10;
+
+  padding: 20px 28px 18px;
+
+  box-sizing: border-box;
+
+  color: #eee;
+
+  display: flex;
+  flex-direction: column;
+
+  font-family: "Jost", sans-serif;
+}
+
+
+/* =========================================================
+   BRAND HEADER
+   ========================================================= */
+
+.back-header {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+
+  margin-bottom: 7px;
+}
+
+.back-brand {
+  font-family: "Cormorant Garamond", serif;
+
+  font-size: 20px;
+  font-weight: 500;
+
+  letter-spacing: 3.2px;
+
+  background: linear-gradient(
+    105deg,
+    #777 0%,
+    #f5f5f5 22%,
+    #a9a9a9 42%,
+    #ffffff 54%,
+    #7b7b7b 76%,
+    #dedede 100%
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
+  filter:
+    drop-shadow(0 1px 4px rgba(0,0,0,.8));
+}
+
+.back-brand-sub {
+  font-family: "Jost", sans-serif;
+
+  font-size: 12px;
+  font-weight: 500;
+
+  letter-spacing: 2px;
+
+  color: rgba(210,210,210,.58);
+}
+
+
+/* =========================================================
+   EDITORIAL KICKER
+   ========================================================= */
+
+.back-kicker {
+  display: block;
+
+  margin-bottom: 4px;
+
+  font-size: 9px;
+  font-weight: 500;
+
+  letter-spacing: 1.7px;
+
+  color: rgba(220,220,220,.65);
+}
+
+
+/* =========================================================
+   BUSINESS DESCRIPTION
+   ========================================================= */
+
+.back-description {
+  max-width: 245px;
+}
+
+.back-description p {
+  margin: 0;
+
+  font-family: "Jost", sans-serif;
+
+  font-size: 5px;
+  font-weight: 300;
+
+  line-height: 1.55;
+
+  letter-spacing: .28px;
+
+  color: rgba(225,225,225,.68);
+
+  text-align: left;
+}
+
+
+/* =========================================================
+   DIVIDER
+   ========================================================= */
+
+.back-divider {
+  width: 100%;
+  height: 1px;
+
+  margin: 8px 0 7px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,.22),
+      rgba(255,255,255,.06) 55%,
+      transparent
+    );
+
+  opacity: .9;
+}
+
+
+/* =========================================================
+   OWNERS
+   ========================================================= */
+
+.back-owners {
+  display: flex;
+
+  gap: 32px;
+
+  margin-bottom: 8px;
+}
+
+.owner {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 70px;
+}
+
+.owner-label {
+  font-size: 3.9px;
+
+  letter-spacing: 1.5px;
+
+  color: rgba(180,180,180,.42);
+
+  margin-bottom: 1px;
+}
+
+.owner-name {
+  font-family: "Cormorant Garamond", serif;
+
+  font-size: 7.5px;
+  font-weight: 500;
+
+  letter-spacing: 1.8px;
+
+  color: rgba(240,240,240,.88);
+}
+
+.owner-phone {
+  margin-top: 1px;
+
+  font-size: 6px;
+  font-weight: 300;
+
+  letter-spacing: .8px;
+
+  color: rgba(200,200,200,.62);
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.back-footer {
+  margin-top: auto;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+
+/* Email + Instagram */
+
+.back-contact {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+
+  font-size: 4.4px;
+  font-weight: 300;
+
+  letter-spacing: .45px;
+
+  color: rgba(205,205,205,.58);
+}
+
+
+/* Address */
+
+.back-address {
+  max-width: 125px;
+
+  font-size: 4.9px;
+  font-weight: 300;
+
+  line-height: 1.4;
+
+  letter-spacing: .45px;
+
+  text-align: right;
+
+  color: rgba(205,205,205,.58);
+}
+
+
+/* =========================================================
+   BACK — PREMIUM MICRO ACCENT
+   ========================================================= */
+
+.back-content::after {
+  content: "MANUFACTURER · SUPPLIER";
+
+  position: absolute;
+
+  right: 28px;
+  top: 20px;
+
+  font-family: "Jost", sans-serif;
+
+  font-size: 4.9px;
+  font-weight: 400;
+
+  letter-spacing: 1.4px;
+
+  color: rgba(210,210,210,.32);
+}

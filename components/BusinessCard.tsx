@@ -106,7 +106,7 @@ export default function BusinessCard() {
                   </span>
 
                   <span className="owner-phone">
-                    +91 95805 94157
+                    +91 9580594157
                   </span>
                 </div>
 
@@ -120,7 +120,7 @@ export default function BusinessCard() {
                   </span>
 
                   <span className="owner-phone">
-                    +91 93694 3871
+                    +91 9369438571
                   </span>
                 </div>
 

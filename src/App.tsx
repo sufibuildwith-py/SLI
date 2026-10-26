@@ -106,18 +106,18 @@ export default function App() {
 
     entranceTimelineRef.current = tl;
 
-    // Initial state setup
-    gsap.set('.header-anim-item', { y: -28, opacity: 0 });
+    // Initial state setup: small, restrained motion distances for luxury feel
+    gsap.set('.header-anim-item', { y: -20, opacity: 0 });
     gsap.set('.sli-eyebrow-dot', {
       clipPath: 'circle(0% at 50% 50%)',
-      scale: 0.3,
+      scale: 0.4,
       opacity: 0,
     });
-    gsap.set('.sli-eyebrow-text', { x: -16, opacity: 0 });
+    gsap.set('.sli-eyebrow-text', { y: 6, opacity: 0 });
     gsap.set('.sli-headline-line', { y: '105%' });
-    gsap.set('.sli-paragraph', { y: 22, opacity: 0 });
-    gsap.set('.sli-cta-wrapper', { y: 24, opacity: 0 });
-    gsap.set('.sli-craft-card', { y: 44, opacity: 0 });
+    gsap.set('.sli-paragraph', { y: 12, opacity: 0 });
+    gsap.set('.sli-cta-wrapper', { y: 14, opacity: 0 });
+    gsap.set('.sli-craft-card', { y: 28, opacity: 0 });
 
     // Step 1: Header elements drop in gently from top, staggered
     tl.to(
@@ -125,8 +125,8 @@ export default function App() {
       {
         y: 0,
         opacity: 1,
-        duration: 0.75,
-        stagger: 0.08,
+        duration: 0.7,
+        stagger: 0.06,
         ease: 'power2.out',
       },
       0.08
@@ -139,20 +139,20 @@ export default function App() {
         clipPath: 'circle(100% at 50% 50%)',
         scale: 1,
         opacity: 1,
-        duration: 0.5,
+        duration: 0.45,
         ease: 'power2.out',
       },
-      0.2
+      0.18
     );
 
     tl.to(
       '.sli-eyebrow-text',
       {
-        x: 0,
+        y: 0,
         opacity: 1,
-        duration: 0.6,
+        duration: 0.55,
       },
-      0.26
+      0.22
     );
 
     // Step 3: Each headline line rises independently inside an overflow-hidden text mask
@@ -173,9 +173,9 @@ export default function App() {
       {
         y: 0,
         opacity: 1,
-        duration: 0.75,
+        duration: 0.7,
       },
-      0.4
+      0.38
     );
 
     // Step 5: CTA follows with subtle upward reveal
@@ -184,22 +184,22 @@ export default function App() {
       {
         y: 0,
         opacity: 1,
-        duration: 0.7,
+        duration: 0.65,
       },
-      0.5
+      0.46
     );
 
-    // Step 6: Three craftsmanship cards rise into position one after another
+    // Step 6: Three craftsmanship cards rise into position
     tl.to(
       '.sli-craft-card',
       {
         y: 0,
         opacity: 1,
-        duration: 0.8,
-        stagger: 0.1,
+        duration: 0.75,
+        stagger: 0.08,
         ease: 'power3.out',
       },
-      0.35
+      0.32
     );
 
     return () => {

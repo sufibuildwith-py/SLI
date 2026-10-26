@@ -123,7 +123,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
 
             {/* Footer note */}
             <div className="mobile-panel-footer">
-              <p className="mobile-footer-tag">ESTABLISHED 1988</p>
+              <p className="mobile-footer-tag">ESTABLISHED 1995</p>
               <p className="mobile-footer-text">Finest hand-selected hides & bespoke metalwork.</p>
             </div>
           </motion.div>

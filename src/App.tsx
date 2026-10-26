@@ -5,6 +5,7 @@ import { Header } from './components/Header';
 import { HeroContent } from './components/HeroContent';
 import { CraftsmanshipCards, CardItem } from './components/CraftsmanshipCards';
 import { HeroBackground } from './components/HeroBackground';
+import { AboutSection } from './components/AboutSection';
 import { MobileMenu } from './components/MobileMenu';
 import { Modals } from './components/Modals';
 import { ModalType } from './types';
@@ -213,31 +214,37 @@ export default function App() {
   };
 
   return (
-    <div className="sli-hero-root">
-      {/* 1. Hero Background Video with 16:9 framing, bottom anchoring, and soft edge blending */}
-      <HeroBackground
-        onVideoReady={handleVideoReady}
-        isReducedMotion={isReducedMotion}
-      />
+    <div className="sli-page-root">
+      {/* 1. Hero Viewport Section */}
+      <section className="sli-hero-root" id="hero">
+        {/* Background Video with 16:9 framing, bottom anchoring, and soft edge blending */}
+        <HeroBackground
+          onVideoReady={handleVideoReady}
+          isReducedMotion={isReducedMotion}
+        />
 
-      {/* 2. Header with Monogram, Centred 22s Nav, and Right Action Pills */}
-      <Header
-        onOpenCatalogue={() => setActiveModal('catalogue')}
-        onOpenEnquire={() => setActiveModal('enquire')}
-        onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
-        isMobileMenuOpen={isMobileMenuOpen}
-      />
+        {/* Header with Monogram, Centred 22s Nav, and Right Action Pills */}
+        <Header
+          onOpenCatalogue={() => setActiveModal('catalogue')}
+          onOpenEnquire={() => setActiveModal('enquire')}
+          onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
+          isMobileMenuOpen={isMobileMenuOpen}
+        />
 
-      {/* 3. Stage Body: Left Copy & Right Vertical Craftsmanship Cards */}
-      <main className="sli-hero-stage-body">
-        {/* Left Copy: Eyebrow, Two-Line 69s Headline, Paragraph, Dark Espresso CTA */}
-        <HeroContent onExploreClick={() => setActiveModal('collections')} />
+        {/* Stage Body: Left Copy & Right Vertical Craftsmanship Cards */}
+        <main className="sli-hero-stage-body">
+          {/* Left Copy: Eyebrow, Two-Line 69s Headline, Paragraph, Dark Espresso CTA */}
+          <HeroContent onExploreClick={() => setActiveModal('collections')} />
 
-        {/* Right: Three 222x160s Frosted-Glass Craftsmanship Cards */}
-        <CraftsmanshipCards onCardClick={handleCardClick} />
-      </main>
+          {/* Right: Three 222x160s Frosted-Glass Craftsmanship Cards */}
+          <CraftsmanshipCards onCardClick={handleCardClick} />
+        </main>
+      </section>
 
-      {/* 4. Responsive Mobile Drawer (< 820px) */}
+      {/* 2. Editorial About Us / Our Story Section with Scroll-Triggered Word Reveal */}
+      <AboutSection isReducedMotion={isReducedMotion} />
+
+      {/* 3. Responsive Mobile Drawer (< 820px) */}
       <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
@@ -245,7 +252,7 @@ export default function App() {
         onOpenEnquire={() => setActiveModal('enquire')}
       />
 
-      {/* 5. Luxury Modals for Catalogue, Bespoke Enquiry, and Collections */}
+      {/* 4. Luxury Modals for Catalogue, Bespoke Enquiry, and Collections */}
       <Modals
         activeModal={activeModal}
         onClose={() => setActiveModal(null)}

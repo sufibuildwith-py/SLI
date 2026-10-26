@@ -13,7 +13,10 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# Temporary & scratch files
+scratch/
+public/hero-original.mp4
+
 .vscode/*
 !.vscode/extensions.json
 .idea

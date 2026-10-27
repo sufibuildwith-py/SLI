@@ -6,6 +6,7 @@ import { HeroContent } from './components/HeroContent';
 import { CraftsmanshipCards, CardItem } from './components/CraftsmanshipCards';
 import { HeroBackground } from './components/HeroBackground';
 import { AboutSection } from './components/AboutSection';
+import { CraftsmanshipSection } from './components/CraftsmanshipSection';
 import { MobileMenu } from './components/MobileMenu';
 import { Modals } from './components/Modals';
 import { ModalType } from './types';
@@ -244,7 +245,10 @@ export default function App() {
       {/* 2. Editorial About Us / Our Story Section with Scroll-Triggered Word Reveal */}
       <AboutSection isReducedMotion={isReducedMotion} />
 
-      {/* 3. Responsive Mobile Drawer (< 820px) */}
+      {/* 3. Pinned 3D Horizontal Craftsmanship Cylinder Showcase */}
+      <CraftsmanshipSection isReducedMotion={isReducedMotion} />
+
+      {/* 4. Responsive Mobile Drawer (< 820px) */}
       <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}

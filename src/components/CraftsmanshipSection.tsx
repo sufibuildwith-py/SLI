@@ -72,17 +72,37 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const cardsRefs = useRef<(HTMLElement | null)[]>([]);
+  const stepDotsRef = useRef<(HTMLSpanElement | null)[]>([]);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const counterCurrentRef = useRef<HTMLSpanElement>(null);
 
   // Scroll and mouse animation trackers
   const scrollProgressRef = useRef(0);
+  const lastProgressRef = useRef(-1);
   const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
   const isHoveringRef = useRef(false);
+  const isSectionActiveRef = useRef(false);
+  const activeCardIndexRef = useRef(0);
 
-  // Responsive card metrics
+  // Per-card render state caching to prevent unnecessary DOM style dirtying
+  const cardStatesRef = useRef<Array<{ visible: boolean; zIndex: number; opacity: number }>>([
+    { visible: true, zIndex: 0, opacity: -1 },
+    { visible: true, zIndex: 0, opacity: -1 },
+    { visible: true, zIndex: 0, opacity: -1 },
+    { visible: true, zIndex: 0, opacity: -1 },
+    { visible: true, zIndex: 0, opacity: -1 },
+  ]);
+
+  // Responsive card metrics and geometry cache (avoids window.innerWidth in render loop)
   const [metrics, setMetrics] = useState({ cardW: 360, cardH: 480 });
-  const [activeCardIndex, setActiveCardIndex] = useState(0);
+  const metricsRef = useRef({
+    cardW: 360,
+    cardH: 480,
+    w: typeof window !== 'undefined' ? window.innerWidth : 1200,
+    isMobile: false,
+    isTablet: false,
+    gap: 48,
+  });
 
   // Calculate responsive card dimensions
   const updateMetrics = useCallback(() => {
@@ -93,10 +113,14 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
     let cardW = 360;
     let cardH = 480;
 
-    if (w < 640) {
+    const isMobile = w < 640;
+    const isTablet = w < 1024 && !isMobile;
+    const gap = isMobile ? 20 : isTablet ? 36 : 48;
+
+    if (isMobile) {
       cardW = Math.round(Math.min(w * 0.78, 280));
       cardH = Math.round(Math.min(h * 0.46, 380));
-    } else if (w < 1024) {
+    } else if (isTablet) {
       cardW = Math.round(Math.min(w * 0.44, 320));
       cardH = Math.round(Math.min(h * 0.50, 440));
     } else {
@@ -106,6 +130,7 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
       cardH = Math.round(500 * heightFactor);
     }
 
+    metricsRef.current = { cardW, cardH, w, isMobile, isTablet, gap };
     setMetrics({ cardW, cardH });
   }, []);
 
@@ -115,6 +140,22 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
     return () => window.removeEventListener('resize', updateMetrics);
   }, [updateMetrics]);
 
+  // Asynchronously decode card textures on mount to eliminate frame hitching
+  useEffect(() => {
+    CRAFTSMANSHIP_CARDS.forEach((card) => {
+      const img = new Image();
+      img.src = card.image;
+      if ('decode' in img) {
+        img.decode().catch(() => {});
+      }
+    });
+    const bgImg = new Image();
+    bgImg.src = '/images/craftsmanship/background_clean_plate.webp';
+    if ('decode' in bgImg) {
+      bgImg.decode().catch(() => {});
+    }
+  }, []);
+
   // Track mouse coordinates for interactive 3D parallax tilt (desktop fine pointers only)
   useEffect(() => {
     if (isReducedMotion) return;
@@ -123,8 +164,10 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
     if (isTouchOnly) return;
 
     const handleMouseMove = (e: MouseEvent) => {
+      if (!isSectionActiveRef.current) return;
       isHoveringRef.current = true;
-      const rx = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+      const { w } = metricsRef.current;
+      const rx = (e.clientX - w / 2) / (w / 2);
       const ry = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
       mouseRef.current.targetX = Math.max(-1, Math.min(1, rx));
       mouseRef.current.targetY = Math.max(-1, Math.min(1, ry));
@@ -151,7 +194,8 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
 
     const cardCount = CRAFTSMANSHIP_CARDS.length;
 
-    // Pin section and synchronize vertical scroll with horizontal 3D travel
+    // Pin section and synchronize vertical scroll with horizontal 3D travel.
+    // scrub: true eliminates double-interpolation lag with Lenis smooth scroll.
     const trigger = ScrollTrigger.create({
       trigger: sectionRef.current,
       start: 'top top',
@@ -159,11 +203,14 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
       pin: true,
       pinSpacing: true,
       anticipatePin: 1,
-      scrub: 0.6,
+      scrub: true,
+      onToggle: (self) => {
+        isSectionActiveRef.current = self.isActive;
+      },
       onUpdate: (self) => {
         scrollProgressRef.current = self.progress;
 
-        // Update progress bar width
+        // Update progress bar width directly without triggering React re-renders
         if (progressBarRef.current) {
           progressBarRef.current.style.width = `${(self.progress * 100).toFixed(1)}%`;
         }
@@ -179,15 +226,28 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
       },
     });
 
-    // 60fps render loop attached to GSAP ticker for smooth frame timing
+    // 60-120fps render loop attached to GSAP ticker for smooth frame timing
     const tickerCallback = () => {
       // Inertia damping for mouse tilt
+      const prevMouseX = mouseRef.current.x;
+      const prevMouseY = mouseRef.current.y;
       mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.08;
       mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.08;
 
+      const mouseMoving =
+        Math.abs(mouseRef.current.x - prevMouseX) > 0.0001 ||
+        Math.abs(mouseRef.current.y - prevMouseY) > 0.0001;
+
       const p = scrollProgressRef.current;
-      const w = window.innerWidth;
-      const { cardW } = metrics;
+      const scrollMoving = Math.abs(p - lastProgressRef.current) > 0.00005;
+
+      // Gate: if section is inactive and mouse & scroll are settled, avoid idle CPU cycles
+      if (!isSectionActiveRef.current && !mouseMoving && !scrollMoving) {
+        return;
+      }
+      lastProgressRef.current = p;
+
+      const { cardW, w, isMobile, gap } = metricsRef.current;
 
       // Bounded progression: Initial dwell on Card 01 and final dwell on Card 05
       const startPad = 0.08;
@@ -202,17 +262,28 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
         Math.sign(diffFromRound) * Math.pow(Math.abs(diffFromRound) * 2, 3.4) / 2;
       const virtualActiveIndex = Math.max(0, Math.min(cardCount - 1, roundedIndex + easedDiff));
 
-      const isMobile = w < 640;
-      const isTablet = w < 1024 && !isMobile;
-      const gap = isMobile ? 20 : isTablet ? 36 : 48;
-
-      // Update active card index in React state only when changed
+      // Update active card indicators directly via DOM (0 React re-renders)
       const currentActive = Math.round(virtualActiveIndex);
-      setActiveCardIndex((prev) => (prev !== currentActive ? currentActive : prev));
+      if (currentActive !== activeCardIndexRef.current) {
+        const prev = activeCardIndexRef.current;
+        activeCardIndexRef.current = currentActive;
+
+        const prevCard = cardsRefs.current[prev];
+        if (prevCard) prevCard.classList.remove('is-active-card');
+        const nextCard = cardsRefs.current[currentActive];
+        if (nextCard) nextCard.classList.add('is-active-card');
+
+        const prevDot = stepDotsRef.current[prev];
+        if (prevDot) prevDot.classList.remove('is-active');
+        const nextDot = stepDotsRef.current[currentActive];
+        if (nextDot) nextDot.classList.add('is-active');
+      }
 
       for (let i = 0; i < cardCount; i++) {
         const card = cardsRefs.current[i];
         if (!card) continue;
+
+        const state = cardStatesRef.current[i];
 
         // Non-wrapping offset relative to virtualActiveIndex
         const offset = i - virtualActiveIndex;
@@ -221,12 +292,18 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
 
         // Hide cards that have traveled past the visible 3D horizon
         if (absOffset > 2.5) {
-          card.style.visibility = 'hidden';
-          card.style.opacity = '0';
+          if (state.visible) {
+            state.visible = false;
+            card.style.visibility = 'hidden';
+            card.style.opacity = '0';
+          }
           continue;
         }
 
-        card.style.visibility = 'visible';
+        if (!state.visible) {
+          state.visible = true;
+          card.style.visibility = 'visible';
+        }
 
         let x = 0;
         let z = 0;
@@ -293,11 +370,23 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
         // Subtle handcrafted tilt on Z-axis (-1.5deg) for effortless editorial character
         const totalRotZ = -1.5;
 
-        // Depth sorting
-        card.style.zIndex = Math.round(z + 600).toString();
-        card.style.opacity = Math.max(0, Math.min(1, opacity)).toFixed(3);
+        // Depth sorting: update zIndex only when integer layer changes
+        const zIdx = Math.round(z + 600);
+        if (state.zIndex !== zIdx) {
+          state.zIndex = zIdx;
+          card.style.zIndex = zIdx.toString();
+        }
 
-        card.style.transform = `translateX(${x.toFixed(1)}px) translateY(0px) translateZ(${z.toFixed(1)}px) rotateY(${totalRotY.toFixed(2)}deg) rotateX(${totalRotX.toFixed(2)}deg) rotateZ(${totalRotZ}deg)`;
+        // Opacity: update only when visually significant
+        const clampedOpacity = Math.max(0, Math.min(1, opacity));
+        const targetOpacity = Math.round(clampedOpacity * 100) / 100;
+        if (Math.abs(state.opacity - targetOpacity) > 0.01) {
+          state.opacity = targetOpacity;
+          card.style.opacity = targetOpacity.toFixed(2);
+        }
+
+        // Hardware-accelerated 3D transform using translate3d
+        card.style.transform = `translate3d(${x.toFixed(1)}px, 0px, ${z.toFixed(1)}px) rotateY(${totalRotY.toFixed(2)}deg) rotateX(${totalRotX.toFixed(2)}deg) rotateZ(${totalRotZ}deg)`;
       }
     };
 
@@ -310,7 +399,8 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
   }, [isReducedMotion, metrics]);
 
   // Card thickness slices simulating genuine volumetric leather layer depth (-1.8px to +1.8px)
-  const thicknessSlices = [-1.8, -0.6, 0.6, 1.8];
+  // Reduced from 4 slices to front (+1.8px) and back (-1.8px) to eliminate redundant interior overdraw
+  const thicknessSlices = [-1.8, 1.8];
 
   return (
     <section
@@ -319,6 +409,19 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
       className={`sli-craftsmanship-section ${isReducedMotion ? 'reduced-motion' : ''}`}
       aria-label="The Art of Craftsmanship"
     >
+      {/* Background Image Plate */}
+      <div className="sli-craft-bg-plate" aria-hidden="true">
+        <img
+          src="/images/craftsmanship/background_clean_plate.webp"
+          alt=""
+          className="sli-craft-bg-image"
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+        />
+        <div className="sli-craft-bg-overlay" />
+      </div>
+
       {/* Warm ambient atmosphere & vignette */}
       <div className="sli-craft-ambient-radial" aria-hidden="true" />
       <div className="sli-craft-ambient-grain" aria-hidden="true" />
@@ -366,7 +469,7 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
                 ref={(el) => {
                   cardsRefs.current[idx] = el;
                 }}
-                className={`sli-craft-3d-card ${idx === activeCardIndex ? 'is-active-card' : ''}`}
+                className={`sli-craft-3d-card ${idx === 0 ? 'is-active-card' : ''}`}
                 style={{
                   width: `${metrics.cardW}px`,
                   height: `${metrics.cardH}px`,
@@ -376,21 +479,17 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
               >
                 {/* Physical 3D volumetric depth layers */}
                 {thicknessSlices.map((zOffset, layerIdx) => {
-                  const isFront = layerIdx === thicknessSlices.length - 1;
+                  const isFront = layerIdx === 1;
                   const isBack = layerIdx === 0;
 
                   return (
                     <div
                       key={layerIdx}
                       className={`sli-card-slice ${
-                        isFront
-                          ? 'sli-card-front-face'
-                          : isBack
-                          ? 'sli-card-back-face'
-                          : 'sli-card-edge-slice'
+                        isFront ? 'sli-card-front-face' : 'sli-card-back-face'
                       }`}
                       style={{
-                        transform: `translateZ(${zOffset}px)`,
+                        transform: `translate3d(0, 0, ${zOffset}px)`,
                       }}
                       aria-hidden={!isFront}
                     >
@@ -402,7 +501,8 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
                             src={card.image}
                             alt=""
                             className="sli-card-photo"
-                            loading={idx < 2 ? 'eager' : 'lazy'}
+                            loading={idx < 3 ? 'eager' : 'lazy'}
+                            decoding="async"
                             draggable={false}
                           />
 
@@ -474,7 +574,10 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
             {CRAFTSMANSHIP_CARDS.map((_, i) => (
               <span
                 key={i}
-                className={`sli-step-dot ${i === activeCardIndex ? 'is-active' : ''}`}
+                ref={(el) => {
+                  stepDotsRef.current[i] = el;
+                }}
+                className={`sli-step-dot ${i === 0 ? 'is-active' : ''}`}
               />
             ))}
           </div>

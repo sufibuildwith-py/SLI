@@ -1776,12 +1776,37 @@ html, body {
   min-height: 100vh;
   overflow: hidden;
   background-color: #9B8061;
-  background: radial-gradient(ellipse 95% 75% at 50% 45%, #A68C6E 0%, #9B8061 52%, #8D7254 100%);
   color: #241711;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   user-select: none;
+}
+
+.sli-craft-bg-plate {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.sli-craft-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.sli-craft-bg-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 95% 75% at 50% 45%, rgba(246, 241, 235, 0.08) 0%, rgba(141, 114, 84, 0.25) 100%);
+  mix-blend-mode: multiply;
 }
 
 .sli-craft-ambient-radial {
@@ -1899,6 +1924,7 @@ html, body {
   pointer-events: auto;
   border-radius: 20px;
   will-change: transform, opacity;
+  contain: layout style;
   cursor: grab;
 }
 
@@ -1914,6 +1940,7 @@ html, body {
   border-radius: 20px;
   transform-style: preserve-3d;
   backface-visibility: hidden;
+  will-change: transform;
 }
 
 .sli-card-back-face {
@@ -1967,6 +1994,7 @@ html, body {
   box-shadow:
     0 32px 64px -16px rgba(28, 17, 12, 0.42),
     0 12px 24px -8px rgba(28, 17, 12, 0.28),
+    0 0 0 1px rgba(180, 147, 105, 0.28),
     inset 0 0 0 1px rgba(180, 147, 105, 0.32);
 }
 
@@ -1987,7 +2015,6 @@ html, body {
   height: 100%;
   object-fit: cover;
   pointer-events: none;
-  filter: contrast(1.04) brightness(0.96);
   transition: transform 0.6s cubic-bezier(0.2, 0, 0.2, 1);
 }
 
@@ -2050,12 +2077,10 @@ html, body {
   letter-spacing: 0.16em;
   color: #F1E4D2;
   text-transform: uppercase;
-  background: rgba(180, 147, 105, 0.18);
+  background: rgba(30, 20, 14, 0.78);
   border: 1px solid rgba(180, 147, 105, 0.35);
   padding: 3px 8px;
   border-radius: 999px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 
 .sli-card-bottom-info {

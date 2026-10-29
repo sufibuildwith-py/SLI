@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -71,6 +71,7 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
 }) => {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
   const cardsRefs = useRef<(HTMLElement | null)[]>([]);
   const stepDotsRef = useRef<(HTMLSpanElement | null)[]>([]);
   const progressBarRef = useRef<HTMLDivElement>(null);
@@ -78,23 +79,10 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
 
   // Scroll and mouse animation trackers
   const scrollProgressRef = useRef(0);
-  const lastProgressRef = useRef(-1);
   const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
-  const isHoveringRef = useRef(false);
-  const isSectionActiveRef = useRef(false);
   const activeCardIndexRef = useRef(0);
 
-  // Per-card render state caching to prevent unnecessary DOM style dirtying
-  const cardStatesRef = useRef<Array<{ visible: boolean; zIndex: number; opacity: number }>>([
-    { visible: true, zIndex: 0, opacity: -1 },
-    { visible: true, zIndex: 0, opacity: -1 },
-    { visible: true, zIndex: 0, opacity: -1 },
-    { visible: true, zIndex: 0, opacity: -1 },
-    { visible: true, zIndex: 0, opacity: -1 },
-  ]);
-
   // Responsive card metrics and geometry cache (avoids window.innerWidth in render loop)
-  const [metrics, setMetrics] = useState({ cardW: 360, cardH: 480 });
   const metricsRef = useRef({
     cardW: 360,
     cardH: 480,
@@ -103,6 +91,147 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
     isTablet: false,
     gap: 48,
   });
+
+  // Pure deterministic card transform pipeline: cardState = f(progress, cardIndex, metrics)
+  const renderCards = useCallback((p: number) => {
+    if (isReducedMotion) return;
+    const cardCount = CRAFTSMANSHIP_CARDS.length;
+    const clampedP = Math.max(0, Math.min(1, p));
+
+    // Update progress bar width directly
+    if (progressBarRef.current) {
+      progressBarRef.current.style.width = `${(clampedP * 100).toFixed(1)}%`;
+    }
+
+    // Compute active step index for counter (01 to 05)
+    const curIdx = Math.min(
+      cardCount - 1,
+      Math.max(0, Math.round(clampedP * (cardCount - 1)))
+    );
+    if (counterCurrentRef.current) {
+      counterCurrentRef.current.textContent = `0${curIdx + 1}`;
+    }
+
+    const { cardW, w, isMobile, gap } = metricsRef.current;
+
+    // Bounded progression: Initial dwell on Card 01 and final dwell on Card 05
+    const startPad = 0.08;
+    const endPad = 0.08;
+    let rawP = (clampedP - startPad) / (1 - startPad - endPad);
+    rawP = Math.max(0, Math.min(1, rawP)) * (cardCount - 1);
+
+    // Magnetic step logic: gentle dwell at each card center
+    const roundedIndex = Math.round(rawP);
+    const diffFromRound = rawP - roundedIndex; // in [-0.5, 0.5]
+    const easedDiff =
+      Math.sign(diffFromRound) * Math.pow(Math.abs(diffFromRound) * 2, 3.4) / 2;
+    const virtualActiveIndex = Math.max(0, Math.min(cardCount - 1, roundedIndex + easedDiff));
+
+    // Update active card indicators (0 React re-renders)
+    const currentActive = Math.round(virtualActiveIndex);
+    if (currentActive !== activeCardIndexRef.current) {
+      const prev = activeCardIndexRef.current;
+      activeCardIndexRef.current = currentActive;
+
+      const prevCard = cardsRefs.current[prev];
+      if (prevCard) prevCard.classList.remove('is-active-card');
+      const nextCard = cardsRefs.current[currentActive];
+      if (nextCard) nextCard.classList.add('is-active-card');
+
+      const prevDot = stepDotsRef.current[prev];
+      if (prevDot) prevDot.classList.remove('is-active');
+      const nextDot = stepDotsRef.current[currentActive];
+      if (nextDot) nextDot.classList.add('is-active');
+    }
+
+    for (let i = 0; i < cardCount; i++) {
+      const card = cardsRefs.current[i];
+      if (!card) continue;
+
+      // Non-wrapping offset relative to virtualActiveIndex
+      const offset = i - virtualActiveIndex;
+      const absOffset = Math.abs(offset);
+      const sign = Math.sign(offset);
+
+      // Hide cards that have traveled past the visible 3D horizon (> 2.5)
+      if (absOffset > 2.5) {
+        card.style.visibility = 'hidden';
+        card.style.opacity = '0';
+        continue;
+      }
+
+      card.style.visibility = 'visible';
+
+      let x = 0;
+      let z = 0;
+      let rotY = 0;
+      let opacity = 1;
+
+      if (absOffset <= 1) {
+        // Smoothstep from center card to first adjacent card
+        const t = absOffset;
+        const easedT = t * t * (3 - 2 * t);
+
+        const targetX = cardW + gap;
+        x = sign * easedT * targetX;
+
+        // Depth curve: Z brings center forward (320px desktop / 180px mobile)
+        const zCenter = isMobile ? 180 : 320;
+        const zAdjacent = isMobile ? 40 : 80;
+        z = zCenter - easedT * (zCenter - zAdjacent);
+
+        // Concave cylindrical curvature: rotate inward toward viewer
+        const maxRot = isMobile ? 24 : 34;
+        rotY = -sign * (easedT * maxRot);
+
+        opacity = 1 - easedT * 0.18;
+      } else if (absOffset <= 2) {
+        // Smoothstep from adjacent card to edge receding card
+        const t = absOffset - 1;
+        const easedT = t * t * (3 - 2 * t);
+
+        const xStart = cardW + gap;
+        const xEnd = w * 0.5 + cardW * 0.35;
+        x = sign * (xStart + easedT * (xEnd - xStart));
+
+        const zAdjacent = isMobile ? 40 : 80;
+        const zReceded = isMobile ? -140 : -220;
+        z = zAdjacent - easedT * (zAdjacent - zReceded);
+
+        const maxRot1 = isMobile ? 24 : 34;
+        const maxRot2 = isMobile ? 48 : 58;
+        rotY = -sign * (maxRot1 + easedT * (maxRot2 - maxRot1));
+
+        opacity = 0.82 - easedT * 0.72;
+      } else {
+        // Offscreen boundary transition
+        const t = Math.min((absOffset - 2) / 0.5, 1);
+        const xStart = w * 0.5 + cardW * 0.35;
+        const xEnd = w * 0.5 + cardW * 0.85;
+        x = sign * (xStart + t * (xEnd - xStart));
+        z = (isMobile ? -140 : -220) - t * 100;
+        rotY = -sign * (isMobile ? 54 : 64);
+        opacity = Math.max(0, 0.1 - t * 0.1);
+      }
+
+      // Parallax mouse tilt applied exclusively to the active center card
+      const centerFactor = Math.max(0, 1 - absOffset * 1.3);
+      const maxTiltY = isMobile ? 0 : 10;
+      const maxTiltX = isMobile ? 0 : 8;
+
+      const activeTiltY = mouseRef.current.x * maxTiltY * centerFactor;
+      const activeTiltX = -mouseRef.current.y * maxTiltX * centerFactor;
+
+      const totalRotY = rotY + activeTiltY;
+      const totalRotX = activeTiltX;
+      const totalRotZ = -1.5;
+
+      // Apply deterministic values unconditionally
+      card.style.zIndex = Math.round(z + 600).toString();
+      card.style.opacity = Math.max(0, Math.min(1, opacity)).toFixed(3);
+      card.style.transform = `translate3d(${x.toFixed(1)}px, 0px, ${z.toFixed(1)}px) rotateY(${totalRotY.toFixed(2)}deg) rotateX(${totalRotX.toFixed(2)}deg) rotateZ(${totalRotZ}deg)`;
+    }
+  }, [isReducedMotion]);
 
   // Calculate responsive card dimensions
   const updateMetrics = useCallback(() => {
@@ -130,9 +259,29 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
       cardH = Math.round(500 * heightFactor);
     }
 
+    const prevW = metricsRef.current.w;
     metricsRef.current = { cardW, cardH, w, isMobile, isTablet, gap };
-    setMetrics({ cardW, cardH });
-  }, []);
+
+    // Update anchor and card sizes directly in DOM without triggering component re-render
+    if (anchorRef.current) {
+      anchorRef.current.style.width = `${cardW}px`;
+      anchorRef.current.style.height = `${cardH}px`;
+    }
+    cardsRefs.current.forEach((card) => {
+      if (card) {
+        card.style.width = `${cardW}px`;
+        card.style.height = `${cardH}px`;
+      }
+    });
+
+    // Re-render cards at current scroll position with updated metrics
+    renderCards(scrollProgressRef.current);
+
+    // Only refresh ScrollTrigger when horizontal width crosses meaningful threshold
+    if (Math.abs(w - prevW) > 12) {
+      ScrollTrigger.refresh();
+    }
+  }, [renderCards]);
 
   useEffect(() => {
     updateMetrics();
@@ -164,8 +313,6 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
     if (isTouchOnly) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isSectionActiveRef.current) return;
-      isHoveringRef.current = true;
       const { w } = metricsRef.current;
       const rx = (e.clientX - w / 2) / (w / 2);
       const ry = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
@@ -174,7 +321,6 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
     };
 
     const handleMouseLeave = () => {
-      isHoveringRef.current = false;
       mouseRef.current.targetX = 0;
       mouseRef.current.targetY = 0;
     };
@@ -188,14 +334,12 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
     };
   }, [isReducedMotion]);
 
-  // Main GSAP ScrollTrigger and 3D cylinder render loop
+  // Main GSAP ScrollTrigger and 3D cylinder lifecycle (Created ONCE on mount)
   useEffect(() => {
     if (isReducedMotion || !sectionRef.current) return;
 
-    const cardCount = CRAFTSMANSHIP_CARDS.length;
-
     // Pin section and synchronize vertical scroll with horizontal 3D travel.
-    // scrub: true eliminates double-interpolation lag with Lenis smooth scroll.
+    // scrub: true ensures instantaneous 1:1 synchronization in forward and reverse scrolling.
     const trigger = ScrollTrigger.create({
       trigger: sectionRef.current,
       start: 'top top',
@@ -204,31 +348,23 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
       pinSpacing: true,
       anticipatePin: 1,
       scrub: true,
-      onToggle: (self) => {
-        isSectionActiveRef.current = self.isActive;
-      },
       onUpdate: (self) => {
         scrollProgressRef.current = self.progress;
-
-        // Update progress bar width directly without triggering React re-renders
-        if (progressBarRef.current) {
-          progressBarRef.current.style.width = `${(self.progress * 100).toFixed(1)}%`;
-        }
-
-        // Compute current active index for counter display (01 to 05)
-        const curIdx = Math.min(
-          cardCount - 1,
-          Math.max(0, Math.round(self.progress * (cardCount - 1)))
-        );
-        if (counterCurrentRef.current) {
-          counterCurrentRef.current.textContent = `0${curIdx + 1}`;
-        }
+        renderCards(self.progress);
+      },
+      onRefresh: (self) => {
+        scrollProgressRef.current = self.progress;
+        renderCards(self.progress);
       },
     });
 
-    // 60-120fps render loop attached to GSAP ticker for smooth frame timing
+    // Immediate initial render at mount scroll position
+    renderCards(trigger.progress);
+
+    // Desktop GSAP ticker dedicated to smooth mouse-tilt inertia
     const tickerCallback = () => {
-      // Inertia damping for mouse tilt
+      if (metricsRef.current.isMobile || isReducedMotion) return;
+
       const prevMouseX = mouseRef.current.x;
       const prevMouseY = mouseRef.current.y;
       mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.08;
@@ -238,155 +374,8 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
         Math.abs(mouseRef.current.x - prevMouseX) > 0.0001 ||
         Math.abs(mouseRef.current.y - prevMouseY) > 0.0001;
 
-      const p = scrollProgressRef.current;
-      const scrollMoving = Math.abs(p - lastProgressRef.current) > 0.00005;
-
-      // Gate: if section is inactive and mouse & scroll are settled, avoid idle CPU cycles
-      if (!isSectionActiveRef.current && !mouseMoving && !scrollMoving) {
-        return;
-      }
-      lastProgressRef.current = p;
-
-      const { cardW, w, isMobile, gap } = metricsRef.current;
-
-      // Bounded progression: Initial dwell on Card 01 and final dwell on Card 05
-      const startPad = 0.08;
-      const endPad = 0.08;
-      let rawP = (p - startPad) / (1 - startPad - endPad);
-      rawP = Math.max(0, Math.min(1, rawP)) * (cardCount - 1);
-
-      // Magnetic step logic: gentle dwell at each card center
-      const roundedIndex = Math.round(rawP);
-      const diffFromRound = rawP - roundedIndex; // in [-0.5, 0.5]
-      const easedDiff =
-        Math.sign(diffFromRound) * Math.pow(Math.abs(diffFromRound) * 2, 3.4) / 2;
-      const virtualActiveIndex = Math.max(0, Math.min(cardCount - 1, roundedIndex + easedDiff));
-
-      // Update active card indicators directly via DOM (0 React re-renders)
-      const currentActive = Math.round(virtualActiveIndex);
-      if (currentActive !== activeCardIndexRef.current) {
-        const prev = activeCardIndexRef.current;
-        activeCardIndexRef.current = currentActive;
-
-        const prevCard = cardsRefs.current[prev];
-        if (prevCard) prevCard.classList.remove('is-active-card');
-        const nextCard = cardsRefs.current[currentActive];
-        if (nextCard) nextCard.classList.add('is-active-card');
-
-        const prevDot = stepDotsRef.current[prev];
-        if (prevDot) prevDot.classList.remove('is-active');
-        const nextDot = stepDotsRef.current[currentActive];
-        if (nextDot) nextDot.classList.add('is-active');
-      }
-
-      for (let i = 0; i < cardCount; i++) {
-        const card = cardsRefs.current[i];
-        if (!card) continue;
-
-        const state = cardStatesRef.current[i];
-
-        // Non-wrapping offset relative to virtualActiveIndex
-        const offset = i - virtualActiveIndex;
-        const absOffset = Math.abs(offset);
-        const sign = Math.sign(offset);
-
-        // Hide cards that have traveled past the visible 3D horizon
-        if (absOffset > 2.5) {
-          if (state.visible) {
-            state.visible = false;
-            card.style.visibility = 'hidden';
-            card.style.opacity = '0';
-          }
-          continue;
-        }
-
-        if (!state.visible) {
-          state.visible = true;
-          card.style.visibility = 'visible';
-        }
-
-        let x = 0;
-        let z = 0;
-        let rotY = 0;
-        let opacity = 1;
-
-        if (absOffset <= 1) {
-          // Smoothstep from center card to first adjacent card
-          const t = absOffset;
-          const easedT = t * t * (3 - 2 * t);
-
-          const targetX = cardW + gap;
-          x = sign * easedT * targetX;
-
-          // Depth curve: Z brings center forward (320px) and recedes adjacent (80px)
-          const zCenter = isMobile ? 180 : 320;
-          const zAdjacent = isMobile ? 40 : 80;
-          z = zCenter - easedT * (zCenter - zAdjacent);
-
-          // Concave cylindrical curvature: rotate inward toward viewer
-          const maxRot = isMobile ? 24 : 34;
-          rotY = -sign * (easedT * maxRot);
-
-          opacity = 1 - easedT * 0.18;
-        } else if (absOffset <= 2) {
-          // Smoothstep from adjacent card to edge receding card
-          const t = absOffset - 1;
-          const easedT = t * t * (3 - 2 * t);
-
-          const xStart = cardW + gap;
-          const xEnd = w * 0.5 + cardW * 0.35;
-          x = sign * (xStart + easedT * (xEnd - xStart));
-
-          const zAdjacent = isMobile ? 40 : 80;
-          const zReceded = isMobile ? -140 : -220;
-          z = zAdjacent - easedT * (zAdjacent - zReceded);
-
-          const maxRot1 = isMobile ? 24 : 34;
-          const maxRot2 = isMobile ? 48 : 58;
-          rotY = -sign * (maxRot1 + easedT * (maxRot2 - maxRot1));
-
-          opacity = 0.82 - easedT * 0.72;
-        } else {
-          // Offscreen boundary transition
-          const t = Math.min((absOffset - 2) / 0.5, 1);
-          const xStart = w * 0.5 + cardW * 0.35;
-          const xEnd = w * 0.5 + cardW * 0.85;
-          x = sign * (xStart + t * (xEnd - xStart));
-          z = (isMobile ? -140 : -220) - t * 100;
-          rotY = -sign * (isMobile ? 54 : 64);
-          opacity = Math.max(0, 0.1 - t * 0.1);
-        }
-
-        // Parallax mouse tilt applied exclusively to the active center card
-        const centerFactor = Math.max(0, 1 - absOffset * 1.3);
-        const maxTiltY = isMobile ? 0 : 10;
-        const maxTiltX = isMobile ? 0 : 8;
-
-        const activeTiltY = mouseRef.current.x * maxTiltY * centerFactor;
-        const activeTiltX = -mouseRef.current.y * maxTiltX * centerFactor;
-
-        const totalRotY = rotY + activeTiltY;
-        const totalRotX = activeTiltX;
-        // Subtle handcrafted tilt on Z-axis (-1.5deg) for effortless editorial character
-        const totalRotZ = -1.5;
-
-        // Depth sorting: update zIndex only when integer layer changes
-        const zIdx = Math.round(z + 600);
-        if (state.zIndex !== zIdx) {
-          state.zIndex = zIdx;
-          card.style.zIndex = zIdx.toString();
-        }
-
-        // Opacity: update only when visually significant
-        const clampedOpacity = Math.max(0, Math.min(1, opacity));
-        const targetOpacity = Math.round(clampedOpacity * 100) / 100;
-        if (Math.abs(state.opacity - targetOpacity) > 0.01) {
-          state.opacity = targetOpacity;
-          card.style.opacity = targetOpacity.toFixed(2);
-        }
-
-        // Hardware-accelerated 3D transform using translate3d
-        card.style.transform = `translate3d(${x.toFixed(1)}px, 0px, ${z.toFixed(1)}px) rotateY(${totalRotY.toFixed(2)}deg) rotateX(${totalRotX.toFixed(2)}deg) rotateZ(${totalRotZ}deg)`;
+      if (mouseMoving && trigger.isActive) {
+        renderCards(scrollProgressRef.current);
       }
     };
 
@@ -396,10 +385,9 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
       gsap.ticker.remove(tickerCallback);
       trigger.kill();
     };
-  }, [isReducedMotion, metrics]);
+  }, [isReducedMotion, renderCards]);
 
   // Card thickness slices simulating genuine volumetric leather layer depth (-1.8px to +1.8px)
-  // Reduced from 4 slices to front (+1.8px) and back (-1.8px) to eliminate redundant interior overdraw
   const thicknessSlices = [-1.8, 1.8];
 
   return (
@@ -456,10 +444,11 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
         >
           {/* Coordinate Anchor */}
           <div
+            ref={anchorRef}
             className="sli-craft-anchor"
             style={{
-              width: `${metrics.cardW}px`,
-              height: `${metrics.cardH}px`,
+              width: `${metricsRef.current.cardW}px`,
+              height: `${metricsRef.current.cardH}px`,
               transformStyle: 'preserve-3d',
             }}
           >
@@ -471,8 +460,8 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
                 }}
                 className={`sli-craft-3d-card ${idx === 0 ? 'is-active-card' : ''}`}
                 style={{
-                  width: `${metrics.cardW}px`,
-                  height: `${metrics.cardH}px`,
+                  width: `${metricsRef.current.cardW}px`,
+                  height: `${metricsRef.current.cardH}px`,
                   transformStyle: 'preserve-3d',
                 }}
                 aria-label={`${card.category}: ${card.title} — ${card.description}`}

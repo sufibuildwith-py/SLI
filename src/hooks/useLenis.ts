@@ -53,6 +53,15 @@ export function useLenis() {
 
     lenisRef.current = lenis;
 
+    // Handle initial URL hash on mount if present
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hashEl = document.querySelector(window.location.hash);
+      if (hashEl) {
+        hashEl.scrollIntoView();
+        lenis.scrollTo(hashEl as HTMLElement, { offset: 0, immediate: true });
+      }
+    }
+
     // Sync Lenis scroll with GSAP ScrollTrigger
     lenis.on('scroll', ScrollTrigger.update);
 

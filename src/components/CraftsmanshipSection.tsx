@@ -1,8 +1,10 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Draggable } from 'gsap/Draggable';
+import { InertiaPlugin } from 'gsap/InertiaPlugin';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(Draggable, InertiaPlugin);
 
 export interface CraftCardData {
   id: string;
@@ -70,325 +72,334 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
   isReducedMotion = false,
 }) => {
   const sectionRef = useRef<HTMLElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
-  const anchorRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const cardsRefs = useRef<(HTMLElement | null)[]>([]);
-  const stepDotsRef = useRef<(HTMLSpanElement | null)[]>([]);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const counterCurrentRef = useRef<HTMLSpanElement>(null);
+  const stepDotsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  const prevBtnRef = useRef<HTMLButtonElement>(null);
+  const nextBtnRef = useRef<HTMLButtonElement>(null);
 
-  // Scroll and mouse animation trackers
-  const scrollProgressRef = useRef(0);
-  const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
-  const activeCardIndexRef = useRef(0);
+  // Interaction & Layout state kept in refs for 60fps/120Hz unencumbered animation (0 React re-renders)
+  const draggableInstance = useRef<globalThis.Draggable | null>(null);
+  const maxDragRef = useRef<number>(0);
+  const snapOffsetsRef = useRef<number[]>([]);
+  const activeIndexRef = useRef<number>(0);
+  const isDraggingRef = useRef<boolean>(false);
+  const justDraggedRef = useRef<boolean>(false);
+  const dragTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Responsive card metrics and geometry cache (avoids window.innerWidth in render loop)
-  const metricsRef = useRef({
-    cardW: 360,
-    cardH: 480,
-    w: typeof window !== 'undefined' ? window.innerWidth : 1200,
-    isMobile: false,
-    isTablet: false,
-    gap: 48,
-  });
+  // Update UI indicators (counter, progress line, step dots, prev/next buttons) directly via DOM refs
+  const updateProgressAndIndicators = useCallback((x: number) => {
+    const maxDrag = maxDragRef.current;
+    const clampedX = Math.max(-maxDrag, Math.min(0, x));
+    const progress = maxDrag > 0 ? -clampedX / maxDrag : 0;
+    const clampedProgress = Math.max(0, Math.min(1, progress));
 
-  // Pure deterministic card transform pipeline: cardState = f(progress, cardIndex, metrics)
-  const renderCards = useCallback((p: number) => {
-    if (isReducedMotion) return;
-    const cardCount = CRAFTSMANSHIP_CARDS.length;
-    const clampedP = Math.max(0, Math.min(1, p));
-
-    // Update progress bar width directly
+    // 1. Progress Bar fill width
     if (progressBarRef.current) {
-      progressBarRef.current.style.width = `${(clampedP * 100).toFixed(1)}%`;
+      progressBarRef.current.style.width = `${(clampedProgress * 100).toFixed(1)}%`;
     }
 
-    // Compute active step index for counter (01 to 05)
-    const curIdx = Math.min(
-      cardCount - 1,
-      Math.max(0, Math.round(clampedP * (cardCount - 1)))
-    );
-    if (counterCurrentRef.current) {
-      counterCurrentRef.current.textContent = `0${curIdx + 1}`;
-    }
+    // 2. Determine active card index (0 to CRAFTSMANSHIP_CARDS.length - 1)
+    const totalCards = CRAFTSMANSHIP_CARDS.length;
+    const closestIndex =
+      totalCards > 1
+        ? Math.min(totalCards - 1, Math.max(0, Math.round(clampedProgress * (totalCards - 1))))
+        : 0;
 
-    const { cardW, w, isMobile, gap } = metricsRef.current;
+    if (closestIndex !== activeIndexRef.current) {
+      const prev = activeIndexRef.current;
+      activeIndexRef.current = closestIndex;
 
-    // Bounded progression: Initial dwell on Card 01 and final dwell on Card 05
-    const startPad = 0.08;
-    const endPad = 0.08;
-    let rawP = (clampedP - startPad) / (1 - startPad - endPad);
-    rawP = Math.max(0, Math.min(1, rawP)) * (cardCount - 1);
+      // Update counter text (01 to 05)
+      if (counterCurrentRef.current) {
+        counterCurrentRef.current.textContent = `0${closestIndex + 1}`;
+      }
 
-    // Magnetic step logic: gentle dwell at each card center
-    const roundedIndex = Math.round(rawP);
-    const diffFromRound = rawP - roundedIndex; // in [-0.5, 0.5]
-    const easedDiff =
-      Math.sign(diffFromRound) * Math.pow(Math.abs(diffFromRound) * 2, 3.4) / 2;
-    const virtualActiveIndex = Math.max(0, Math.min(cardCount - 1, roundedIndex + easedDiff));
-
-    // Update active card indicators (0 React re-renders)
-    const currentActive = Math.round(virtualActiveIndex);
-    if (currentActive !== activeCardIndexRef.current) {
-      const prev = activeCardIndexRef.current;
-      activeCardIndexRef.current = currentActive;
-
+      // Update active card class
       const prevCard = cardsRefs.current[prev];
       if (prevCard) prevCard.classList.remove('is-active-card');
-      const nextCard = cardsRefs.current[currentActive];
+      const nextCard = cardsRefs.current[closestIndex];
       if (nextCard) nextCard.classList.add('is-active-card');
 
+      // Update step dot active states
       const prevDot = stepDotsRef.current[prev];
-      if (prevDot) prevDot.classList.remove('is-active');
-      const nextDot = stepDotsRef.current[currentActive];
-      if (nextDot) nextDot.classList.add('is-active');
+      if (prevDot) {
+        prevDot.classList.remove('is-active');
+        prevDot.setAttribute('aria-current', 'false');
+      }
+      const nextDot = stepDotsRef.current[closestIndex];
+      if (nextDot) {
+        nextDot.classList.add('is-active');
+        nextDot.setAttribute('aria-current', 'true');
+      }
     }
 
-    for (let i = 0; i < cardCount; i++) {
-      const card = cardsRefs.current[i];
-      if (!card) continue;
-
-      // Non-wrapping offset relative to virtualActiveIndex
-      const offset = i - virtualActiveIndex;
-      const absOffset = Math.abs(offset);
-      const sign = Math.sign(offset);
-
-      // Hide cards that have traveled past the visible 3D horizon (> 2.5)
-      if (absOffset > 2.5) {
-        card.style.visibility = 'hidden';
-        card.style.opacity = '0';
-        continue;
-      }
-
-      card.style.visibility = 'visible';
-
-      let x = 0;
-      let z = 0;
-      let rotY = 0;
-      let opacity = 1;
-
-      if (absOffset <= 1) {
-        // Smoothstep from center card to first adjacent card
-        const t = absOffset;
-        const easedT = t * t * (3 - 2 * t);
-
-        const targetX = cardW + gap;
-        x = sign * easedT * targetX;
-
-        // Depth curve: Z brings center forward (320px desktop / 180px mobile)
-        const zCenter = isMobile ? 180 : 320;
-        const zAdjacent = isMobile ? 40 : 80;
-        z = zCenter - easedT * (zCenter - zAdjacent);
-
-        // Concave cylindrical curvature: rotate inward toward viewer
-        const maxRot = isMobile ? 24 : 34;
-        rotY = -sign * (easedT * maxRot);
-
-        opacity = 1 - easedT * 0.18;
-      } else if (absOffset <= 2) {
-        // Smoothstep from adjacent card to edge receding card
-        const t = absOffset - 1;
-        const easedT = t * t * (3 - 2 * t);
-
-        const xStart = cardW + gap;
-        const xEnd = w * 0.5 + cardW * 0.35;
-        x = sign * (xStart + easedT * (xEnd - xStart));
-
-        const zAdjacent = isMobile ? 40 : 80;
-        const zReceded = isMobile ? -140 : -220;
-        z = zAdjacent - easedT * (zAdjacent - zReceded);
-
-        const maxRot1 = isMobile ? 24 : 34;
-        const maxRot2 = isMobile ? 48 : 58;
-        rotY = -sign * (maxRot1 + easedT * (maxRot2 - maxRot1));
-
-        opacity = 0.82 - easedT * 0.72;
+    // 3. Arrow buttons enabled / disabled state
+    if (prevBtnRef.current) {
+      const isStart = clampedX >= -6;
+      prevBtnRef.current.disabled = isStart;
+      if (isStart) {
+        prevBtnRef.current.setAttribute('disabled', '');
       } else {
-        // Offscreen boundary transition
-        const t = Math.min((absOffset - 2) / 0.5, 1);
-        const xStart = w * 0.5 + cardW * 0.35;
-        const xEnd = w * 0.5 + cardW * 0.85;
-        x = sign * (xStart + t * (xEnd - xStart));
-        z = (isMobile ? -140 : -220) - t * 100;
-        rotY = -sign * (isMobile ? 54 : 64);
-        opacity = Math.max(0, 0.1 - t * 0.1);
+        prevBtnRef.current.removeAttribute('disabled');
       }
-
-      // Parallax mouse tilt applied exclusively to the active center card
-      const centerFactor = Math.max(0, 1 - absOffset * 1.3);
-      const maxTiltY = isMobile ? 0 : 10;
-      const maxTiltX = isMobile ? 0 : 8;
-
-      const activeTiltY = mouseRef.current.x * maxTiltY * centerFactor;
-      const activeTiltX = -mouseRef.current.y * maxTiltX * centerFactor;
-
-      const totalRotY = rotY + activeTiltY;
-      const totalRotX = activeTiltX;
-      const totalRotZ = -1.5;
-
-      // Apply deterministic values unconditionally
-      card.style.zIndex = Math.round(z + 600).toString();
-      card.style.opacity = Math.max(0, Math.min(1, opacity)).toFixed(3);
-      card.style.transform = `translate3d(${x.toFixed(1)}px, 0px, ${z.toFixed(1)}px) rotateY(${totalRotY.toFixed(2)}deg) rotateX(${totalRotX.toFixed(2)}deg) rotateZ(${totalRotZ}deg)`;
+      prevBtnRef.current.classList.toggle('is-disabled', isStart);
     }
-  }, [isReducedMotion]);
-
-  // Calculate responsive card dimensions
-  const updateMetrics = useCallback(() => {
-    if (typeof window === 'undefined') return;
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-
-    let cardW = 360;
-    let cardH = 480;
-
-    const isMobile = w < 640;
-    const isTablet = w < 1024 && !isMobile;
-    const gap = isMobile ? 20 : isTablet ? 36 : 48;
-
-    if (isMobile) {
-      cardW = Math.round(Math.min(w * 0.78, 280));
-      cardH = Math.round(Math.min(h * 0.46, 380));
-    } else if (isTablet) {
-      cardW = Math.round(Math.min(w * 0.44, 320));
-      cardH = Math.round(Math.min(h * 0.50, 440));
-    } else {
-      // Desktop: preserve luxury portrait proportions
-      const heightFactor = Math.min(1.0, Math.max(0.72, h / 950));
-      cardW = Math.round(380 * heightFactor);
-      cardH = Math.round(500 * heightFactor);
-    }
-
-    const prevW = metricsRef.current.w;
-    metricsRef.current = { cardW, cardH, w, isMobile, isTablet, gap };
-
-    // Update anchor and card sizes directly in DOM without triggering component re-render
-    if (anchorRef.current) {
-      anchorRef.current.style.width = `${cardW}px`;
-      anchorRef.current.style.height = `${cardH}px`;
-    }
-    cardsRefs.current.forEach((card) => {
-      if (card) {
-        card.style.width = `${cardW}px`;
-        card.style.height = `${cardH}px`;
+    if (nextBtnRef.current) {
+      const isEnd = clampedX <= -maxDrag + 6;
+      nextBtnRef.current.disabled = isEnd;
+      if (isEnd) {
+        nextBtnRef.current.setAttribute('disabled', '');
+      } else {
+        nextBtnRef.current.removeAttribute('disabled');
       }
-    });
-
-    // Re-render cards at current scroll position with updated metrics
-    renderCards(scrollProgressRef.current);
-
-    // Only refresh ScrollTrigger when horizontal width crosses meaningful threshold
-    if (Math.abs(w - prevW) > 12) {
-      ScrollTrigger.refresh();
+      nextBtnRef.current.classList.toggle('is-disabled', isEnd);
     }
-  }, [renderCards]);
+  }, []);
 
+  // Programmatic smooth scroll to target X coordinate
+  const animateToX = useCallback(
+    (targetX: number, duration = 0.65) => {
+      if (!trackRef.current) return;
+      const maxDrag = maxDragRef.current;
+      const clampedX = Math.max(-maxDrag, Math.min(0, targetX));
+
+      gsap.to(trackRef.current, {
+        x: clampedX,
+        duration: isReducedMotion ? 0.01 : duration,
+        ease: 'power3.out',
+        overwrite: 'auto',
+        onUpdate: () => {
+          if (!trackRef.current) return;
+          const curX = gsap.getProperty(trackRef.current, 'x') as number;
+          draggableInstance.current?.update();
+          updateProgressAndIndicators(curX);
+        },
+        onComplete: () => {
+          if (!trackRef.current) return;
+          const finalX = gsap.getProperty(trackRef.current, 'x') as number;
+          draggableInstance.current?.update();
+          updateProgressAndIndicators(finalX);
+        },
+      });
+    },
+    [isReducedMotion, updateProgressAndIndicators]
+  );
+
+  // Jump to specific card by index
+  const scrollToCardIndex = useCallback(
+    (index: number) => {
+      const offsets = snapOffsetsRef.current;
+      if (index >= 0 && index < offsets.length) {
+        animateToX(offsets[index]);
+      }
+    },
+    [animateToX]
+  );
+
+  // Step card in relative direction ('prev' or 'next')
+  const scrollCard = useCallback(
+    (direction: 'prev' | 'next') => {
+      const curIdx = activeIndexRef.current;
+      const targetIdx = direction === 'next' ? curIdx + 1 : curIdx - 1;
+      const clampedIdx = Math.max(0, Math.min(CRAFTSMANSHIP_CARDS.length - 1, targetIdx));
+      scrollToCardIndex(clampedIdx);
+    },
+    [scrollToCardIndex]
+  );
+
+  // Calculate snap points and maxDrag from rendered geometry
+  const measureBounds = useCallback(() => {
+    if (!viewportRef.current || !trackRef.current) return;
+    const viewportWidth = viewportRef.current.clientWidth;
+    const trackWidth = trackRef.current.scrollWidth;
+
+    // Maximum scrollable distance to ensure Card 05 is fully revealed without overshooting
+    const maxDrag = Math.max(0, trackWidth - viewportWidth);
+    maxDragRef.current = maxDrag;
+
+    // Calculate snap offsets: 5 proportional points across the drag range
+    const totalCards = CRAFTSMANSHIP_CARDS.length;
+    const offsets: number[] = [];
+    for (let i = 0; i < totalCards; i++) {
+      const ratio = totalCards > 1 ? i / (totalCards - 1) : 0;
+      offsets.push(-ratio * maxDrag);
+    }
+    snapOffsetsRef.current = offsets;
+
+    // Apply updated bounds to Draggable
+    if (draggableInstance.current) {
+      draggableInstance.current.applyBounds({
+        minX: -maxDrag,
+        maxX: 0,
+      });
+      const curX = gsap.getProperty(trackRef.current, 'x') as number;
+      if (curX < -maxDrag) {
+        animateToX(-maxDrag, 0.3);
+      } else if (curX > 0) {
+        animateToX(0, 0.3);
+      } else {
+        updateProgressAndIndicators(curX);
+      }
+    }
+  }, [animateToX, updateProgressAndIndicators]);
+
+  // Initialize Draggable with InertiaPlugin
   useEffect(() => {
-    updateMetrics();
-    window.addEventListener('resize', updateMetrics);
-    return () => window.removeEventListener('resize', updateMetrics);
-  }, [updateMetrics]);
+    if (!trackRef.current || !viewportRef.current) return;
 
-  // Asynchronously decode card textures on mount to eliminate frame hitching
+    measureBounds();
+
+    const draggable = Draggable.create(trackRef.current, {
+      type: 'x',
+      inertia: !isReducedMotion,
+      edgeResistance: 0.85,
+      dragResistance: 0,
+      cursor: 'grab',
+      activeCursor: 'grabbing',
+      dragClickables: false,
+      zIndexBoost: false,
+      bounds: {
+        minX: -maxDragRef.current,
+        maxX: 0,
+      },
+      snap: {
+        x: (endValue: number) => {
+          if (isReducedMotion) return endValue;
+          const offsets = snapOffsetsRef.current;
+          if (!offsets.length) return endValue;
+
+          // Find closest snap target to natural inertia projection
+          let closest = offsets[0];
+          let minDiff = Infinity;
+          for (let i = 0; i < offsets.length; i++) {
+            const diff = Math.abs(endValue - offsets[i]);
+            if (diff < minDiff) {
+              minDiff = diff;
+              closest = offsets[i];
+            }
+          }
+          return closest;
+        },
+      },
+      onPress() {
+        isDraggingRef.current = true;
+        if (dragTimeoutRef.current) clearTimeout(dragTimeoutRef.current);
+      },
+      onDrag() {
+        justDraggedRef.current = true;
+        updateProgressAndIndicators(this.x);
+      },
+      onThrowUpdate() {
+        updateProgressAndIndicators(this.x);
+      },
+      onThrowComplete() {
+        isDraggingRef.current = false;
+        updateProgressAndIndicators(this.x);
+        dragTimeoutRef.current = setTimeout(() => {
+          justDraggedRef.current = false;
+        }, 120);
+      },
+      onDragEnd() {
+        if (!this.tween) {
+          isDraggingRef.current = false;
+          dragTimeoutRef.current = setTimeout(() => {
+            justDraggedRef.current = false;
+          }, 120);
+        }
+      },
+    })[0];
+
+    draggableInstance.current = draggable;
+
+    // Resize observer to keep track bounds in sync with window / viewport changes
+    const resizeObserver = new ResizeObserver(() => {
+      measureBounds();
+    });
+    resizeObserver.observe(viewportRef.current);
+    if (trackRef.current) resizeObserver.observe(trackRef.current);
+
+    const handleWindowResize = () => {
+      measureBounds();
+    };
+    window.addEventListener('resize', handleWindowResize);
+
+    return () => {
+      window.removeEventListener('resize', handleWindowResize);
+      resizeObserver.disconnect();
+      if (dragTimeoutRef.current) clearTimeout(dragTimeoutRef.current);
+      draggable.kill();
+      draggableInstance.current = null;
+    };
+  }, [isReducedMotion, measureBounds, updateProgressAndIndicators]);
+
+  // Trackpad horizontal wheel support (does not hijack vertical page scrolling)
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // Engage only when user intends horizontal gesture (deltaX dominates deltaY)
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 2) {
+        e.preventDefault();
+        if (!trackRef.current) return;
+
+        const maxDrag = maxDragRef.current;
+        const curX = gsap.getProperty(trackRef.current, 'x') as number;
+        const newX = Math.max(-maxDrag, Math.min(0, curX - e.deltaX * 0.95));
+
+        gsap.to(trackRef.current, {
+          x: newX,
+          duration: 0.28,
+          ease: 'power2.out',
+          overwrite: 'auto',
+          onUpdate: () => {
+            if (!trackRef.current) return;
+            const updatedX = gsap.getProperty(trackRef.current, 'x') as number;
+            draggableInstance.current?.update();
+            updateProgressAndIndicators(updatedX);
+          },
+        });
+      }
+    };
+
+    viewport.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      viewport.removeEventListener('wheel', handleWheel);
+    };
+  }, [updateProgressAndIndicators]);
+
+  // Accessible keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      scrollCard('next');
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      scrollCard('prev');
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      scrollToCardIndex(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      scrollToCardIndex(CRAFTSMANSHIP_CARDS.length - 1);
+    }
+  };
+
+  // Preload and decode images asynchronously to avoid frame drops
   useEffect(() => {
     CRAFTSMANSHIP_CARDS.forEach((card) => {
       const img = new Image();
       img.src = card.image;
-      if ('decode' in img) {
-        img.decode().catch(() => {});
-      }
+      if ('decode' in img) img.decode().catch(() => {});
     });
     const bgImg = new Image();
     bgImg.src = '/images/craftsmanship/background_clean_plate.webp';
-    if ('decode' in bgImg) {
-      bgImg.decode().catch(() => {});
-    }
+    if ('decode' in bgImg) bgImg.decode().catch(() => {});
   }, []);
-
-  // Track mouse coordinates for interactive 3D parallax tilt (desktop fine pointers only)
-  useEffect(() => {
-    if (isReducedMotion) return;
-
-    const isTouchOnly = window.matchMedia('(pointer: coarse)').matches;
-    if (isTouchOnly) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const { w } = metricsRef.current;
-      const rx = (e.clientX - w / 2) / (w / 2);
-      const ry = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
-      mouseRef.current.targetX = Math.max(-1, Math.min(1, rx));
-      mouseRef.current.targetY = Math.max(-1, Math.min(1, ry));
-    };
-
-    const handleMouseLeave = () => {
-      mouseRef.current.targetX = 0;
-      mouseRef.current.targetY = 0;
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseleave', handleMouseLeave);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseleave', handleMouseLeave);
-    };
-  }, [isReducedMotion]);
-
-  // Main GSAP ScrollTrigger and 3D cylinder lifecycle (Created ONCE on mount)
-  useEffect(() => {
-    if (isReducedMotion || !sectionRef.current) return;
-
-    // Pin section and synchronize vertical scroll with horizontal 3D travel.
-    // scrub: true ensures instantaneous 1:1 synchronization in forward and reverse scrolling.
-    const trigger = ScrollTrigger.create({
-      trigger: sectionRef.current,
-      start: 'top top',
-      end: '+=3600',
-      pin: true,
-      pinSpacing: true,
-      anticipatePin: 1,
-      scrub: true,
-      onUpdate: (self) => {
-        scrollProgressRef.current = self.progress;
-        renderCards(self.progress);
-      },
-      onRefresh: (self) => {
-        scrollProgressRef.current = self.progress;
-        renderCards(self.progress);
-      },
-    });
-
-    // Immediate initial render at mount scroll position
-    renderCards(trigger.progress);
-
-    // Desktop GSAP ticker dedicated to smooth mouse-tilt inertia
-    const tickerCallback = () => {
-      if (metricsRef.current.isMobile || isReducedMotion) return;
-
-      const prevMouseX = mouseRef.current.x;
-      const prevMouseY = mouseRef.current.y;
-      mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.08;
-      mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.08;
-
-      const mouseMoving =
-        Math.abs(mouseRef.current.x - prevMouseX) > 0.0001 ||
-        Math.abs(mouseRef.current.y - prevMouseY) > 0.0001;
-
-      if (mouseMoving && trigger.isActive) {
-        renderCards(scrollProgressRef.current);
-      }
-    };
-
-    gsap.ticker.add(tickerCallback);
-
-    return () => {
-      gsap.ticker.remove(tickerCallback);
-      trigger.kill();
-    };
-  }, [isReducedMotion, renderCards]);
-
-  // Card thickness slices simulating genuine volumetric leather layer depth (-1.8px to +1.8px)
-  const thicknessSlices = [-1.8, 1.8];
 
   return (
     <section
@@ -414,7 +425,7 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
       <div className="sli-craft-ambient-radial" aria-hidden="true" />
       <div className="sli-craft-ambient-grain" aria-hidden="true" />
 
-      {/* Stage Wrapper */}
+      {/* Main Section Content Wrapper */}
       <div className="sli-craft-stage-container">
         {/* Section Header */}
         <header className="sli-craft-header">
@@ -433,142 +444,129 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({
           </p>
         </header>
 
-        {/* 3D Perspective Gallery Viewport */}
+        {/* Horizontal Draggable Gallery Viewport */}
         <div
-          ref={stageRef}
-          className="sli-craft-3d-stage"
-          style={{
-            perspective: '1350px',
-            perspectiveOrigin: '50% 50%',
-          }}
+          ref={viewportRef}
+          className="sli-craft-gallery-viewport"
+          tabIndex={0}
+          onKeyDown={handleKeyDown}
+          aria-label="Craftsmanship editorial gallery. Drag or swipe horizontally to explore cards, or use arrow keys."
+          role="region"
         >
-          {/* Coordinate Anchor */}
-          <div
-            ref={anchorRef}
-            className="sli-craft-anchor"
-            style={{
-              width: `${metricsRef.current.cardW}px`,
-              height: `${metricsRef.current.cardH}px`,
-              transformStyle: 'preserve-3d',
-            }}
-          >
+          <div ref={trackRef} className="sli-craft-gallery-track">
             {CRAFTSMANSHIP_CARDS.map((card, idx) => (
               <article
                 key={card.id}
                 ref={(el) => {
                   cardsRefs.current[idx] = el;
                 }}
-                className={`sli-craft-3d-card ${idx === 0 ? 'is-active-card' : ''}`}
-                style={{
-                  width: `${metricsRef.current.cardW}px`,
-                  height: `${metricsRef.current.cardH}px`,
-                  transformStyle: 'preserve-3d',
+                className={`sli-craft-editorial-card ${idx === 0 ? 'is-active-card' : ''}`}
+                onClick={() => {
+                  // If user was actively dragging, do not trigger card selection
+                  if (justDraggedRef.current) return;
+                  scrollToCardIndex(idx);
                 }}
-                aria-label={`${card.category}: ${card.title} — ${card.description}`}
+                aria-label={`${card.stepNumber} ${card.category}: ${card.title} — ${card.description}`}
               >
-                {/* Physical 3D volumetric depth layers */}
-                {thicknessSlices.map((zOffset, layerIdx) => {
-                  const isFront = layerIdx === 1;
-                  const isBack = layerIdx === 0;
+                <div className="sli-craft-card-inner">
+                  {/* High-Resolution Editorial Photography */}
+                  <img
+                    src={card.image}
+                    alt=""
+                    className="sli-card-photo"
+                    loading={idx < 3 ? 'eager' : 'lazy'}
+                    decoding="async"
+                    draggable={false}
+                  />
 
-                  return (
-                    <div
-                      key={layerIdx}
-                      className={`sli-card-slice ${
-                        isFront ? 'sli-card-front-face' : 'sli-card-back-face'
-                      }`}
-                      style={{
-                        transform: `translate3d(0, 0, ${zOffset}px)`,
-                      }}
-                      aria-hidden={!isFront}
-                    >
-                      {/* Front face with photography, dual luxury scrims, and editorial typography */}
-                      {isFront && (
-                        <div className="sli-card-front-inner">
-                          {/* Image */}
-                          <img
-                            src={card.image}
-                            alt=""
-                            className="sli-card-photo"
-                            loading={idx < 3 ? 'eager' : 'lazy'}
-                            decoding="async"
-                            draggable={false}
-                          />
+                  {/* Dual Luxury Scrims */}
+                  <div className="sli-card-scrim-top" aria-hidden="true" />
+                  <div className="sli-card-scrim-bottom" aria-hidden="true" />
 
-                          {/* Atmospheric leather scrims */}
-                          <div className="sli-card-scrim-top" />
-                          <div className="sli-card-scrim-bottom" />
-
-                          {/* Card Content Overlay */}
-                          <div className="sli-card-content">
-                            {/* Card Top: Step number & badge */}
-                            <div className="sli-card-top-meta">
-                              <span className="sli-card-step-label">
-                                {card.stepNumber} / {card.category}
-                              </span>
-                              <span className="sli-card-badge">{card.badge}</span>
-                            </div>
-
-                            {/* Card Bottom: Title, description, hallmark */}
-                            <div className="sli-card-bottom-info">
-                              <h3 className="sli-card-title">{card.title}</h3>
-                              <p className="sli-card-desc">{card.description}</p>
-
-                              <div className="sli-card-footer-hallmark">
-                                <span className="sli-hallmark-monogram">SLI</span>
-                                <span className="sli-hallmark-rule" />
-                                <span className="sli-hallmark-meta">ATELIER · KANPUR</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Subtle leather edge border glow */}
-                          <div className="sli-card-inner-border" />
-                        </div>
-                      )}
-
-                      {/* Back face with burnished espresso leather grain and insignia */}
-                      {isBack && (
-                        <div className="sli-card-back-inner">
-                          <div className="sli-card-back-watermark">
-                            <span className="sli-back-monogram">SLI</span>
-                            <span className="sli-back-sub">KANPUR · 1995</span>
-                          </div>
-                        </div>
-                      )}
+                  {/* Card Editorial Overlay */}
+                  <div className="sli-card-content">
+                    {/* Top Meta: Step number & Hallmark badge */}
+                    <div className="sli-card-top-meta">
+                      <span className="sli-card-step-label">
+                        {card.stepNumber} / {card.category}
+                      </span>
+                      <span className="sli-card-badge">{card.badge}</span>
                     </div>
-                  );
-                })}
+
+                    {/* Bottom Info: Title, Description, Atelier Hallmark */}
+                    <div className="sli-card-bottom-info">
+                      <h3 className="sli-card-title">{card.title}</h3>
+                      <p className="sli-card-desc">{card.description}</p>
+
+                      <div className="sli-card-footer-hallmark">
+                        <span className="sli-hallmark-monogram">SLI</span>
+                        <span className="sli-hallmark-rule" aria-hidden="true" />
+                        <span className="sli-hallmark-meta">ATELIER · KANPUR</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Subtle leather edge border */}
+                  <div className="sli-card-inner-border" aria-hidden="true" />
+                </div>
               </article>
             ))}
           </div>
         </div>
 
-        {/* Minimal Editorial Footer: Counter & Progress Line */}
-        <footer className="sli-craft-footer" aria-label="Craftsmanship timeline progress">
-          <div className="sli-craft-counter">
+        {/* Minimal Editorial Footer: Counter, Progress Fill, and Prev/Next Navigation */}
+        <footer className="sli-craft-footer" aria-label="Craftsmanship gallery controls and timeline">
+          {/* Discreet Step Counter */}
+          <div className="sli-craft-counter" aria-live="polite">
             <span ref={counterCurrentRef} className="sli-counter-curr">
               01
             </span>
-            <span className="sli-counter-sep">—</span>
+            <span className="sli-counter-sep">/</span>
             <span className="sli-counter-total">05</span>
           </div>
 
+          {/* Real-time Smooth Progress Line */}
           <div className="sli-craft-progress-track" aria-hidden="true">
             <div ref={progressBarRef} className="sli-craft-progress-fill" />
           </div>
 
-          {/* Quick Step Indicators */}
-          <div className="sli-craft-step-indicators" aria-hidden="true">
-            {CRAFTSMANSHIP_CARDS.map((_, i) => (
-              <span
-                key={i}
+          {/* Interactive Step Pip Dots */}
+          <div className="sli-craft-step-indicators" aria-label="Card selector dots">
+            {CRAFTSMANSHIP_CARDS.map((card, i) => (
+              <button
+                key={card.id}
                 ref={(el) => {
                   stepDotsRef.current[i] = el;
                 }}
+                type="button"
+                onClick={() => scrollToCardIndex(i)}
                 className={`sli-step-dot ${i === 0 ? 'is-active' : ''}`}
+                aria-label={`Jump to ${card.category}`}
+                aria-current={i === 0 ? 'true' : 'false'}
               />
             ))}
+          </div>
+
+          {/* Refined Luxury Navigation Arrows */}
+          <div className="sli-craft-nav-arrows">
+            <button
+              ref={prevBtnRef}
+              type="button"
+              onClick={() => scrollCard('prev')}
+              className="sli-craft-arrow-btn prev is-disabled"
+              aria-label="Previous craftsmanship card"
+            >
+              <ChevronLeft size={16} strokeWidth={2} />
+            </button>
+            <button
+              ref={nextBtnRef}
+              type="button"
+              onClick={() => scrollCard('next')}
+              className="sli-craft-arrow-btn next"
+              aria-label="Next craftsmanship card"
+            >
+              <ChevronRight size={16} strokeWidth={2} />
+            </button>
           </div>
         </footer>
       </div>

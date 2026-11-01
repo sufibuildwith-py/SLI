@@ -7,6 +7,7 @@ import { CraftsmanshipCards, CardItem } from './components/CraftsmanshipCards';
 import { HeroBackground } from './components/HeroBackground';
 import { AboutSection } from './components/AboutSection';
 import { CraftsmanshipSection } from './components/CraftsmanshipSection';
+import { CollectionsSection } from './components/CollectionsSection';
 import { MobileMenu } from './components/MobileMenu';
 import { Modals } from './components/Modals';
 import { ModalType } from './types';
@@ -214,6 +215,36 @@ export default function App() {
     setActiveModal('collections');
   };
 
+  // Section filter query parameter for targeted visual verification & testing
+  const sectionFilter =
+    typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('section')
+      : null;
+
+  if (sectionFilter === 'collections') {
+    return (
+      <div className="sli-page-root">
+        <CollectionsSection isReducedMotion={true} />
+      </div>
+    );
+  }
+
+  if (sectionFilter === 'about') {
+    return (
+      <div className="sli-page-root">
+        <AboutSection isReducedMotion={true} />
+      </div>
+    );
+  }
+
+  if (sectionFilter === 'craftsmanship') {
+    return (
+      <div className="sli-page-root">
+        <CraftsmanshipSection isReducedMotion={false} />
+      </div>
+    );
+  }
+
   return (
     <div className="sli-page-root">
       {/* 1. Hero Viewport Section */}
@@ -248,7 +279,10 @@ export default function App() {
       {/* 3. Pinned 3D Horizontal Craftsmanship Cylinder Showcase */}
       <CraftsmanshipSection isReducedMotion={isReducedMotion} />
 
-      {/* 4. Responsive Mobile Drawer (< 820px) */}
+      {/* 4. Luxury Collections Editorial Background Stage */}
+      <CollectionsSection isReducedMotion={isReducedMotion} />
+
+      {/* 5. Responsive Mobile Drawer (< 820px) */}
       <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}

@@ -2649,7 +2649,7 @@ html, body {
   .sli-collections-section {
     min-height: 100vh;
     min-height: 100dvh;
-    padding: 64px 16px 36px;
+    padding: 56px 0 36px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -2673,12 +2673,12 @@ html, body {
   }
 
   .sli-collections-artboard {
-    height: clamp(240px, 38vh, 320px);
-    width: calc(clamp(240px, 38vh, 320px) * 16 / 9);
+    height: clamp(420px, 54vh, 480px);
+    width: calc(clamp(420px, 54vh, 480px) * 16 / 9);
     max-width: none;
-    margin: 16px auto;
-    /* Center the model torso & waist dead-center in the phone viewport */
-    transform: translateX(-17.5%);
+    margin: 8px auto 0 auto;
+    /* Horizontally center the model bounding box (stool leg to outstretched boot) symmetrically */
+    transform: translateX(calc(50vw - 54.74%));
     order: 2;
     flex-shrink: 0;
   }
@@ -2694,6 +2694,8 @@ html, body {
     align-items: center;
     order: 1;
     pointer-events: auto;
+    padding: 0 16px;
+    box-sizing: border-box;
   }
 
   .sli-col-intro-left {

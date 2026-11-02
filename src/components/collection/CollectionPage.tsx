@@ -10,6 +10,7 @@ import { ProductStage } from './ProductStage';
 import { CollectionFooter } from './CollectionFooter';
 import { ProductDetailViewer } from './ProductDetailViewer';
 import { useAdjacentImagePrefetch } from './useAdjacentImagePrefetch';
+import { GlobalEnquiryRouter } from '../contact';
 
 interface CollectionPageProps {
   onNavigateHome?: () => void;
@@ -136,13 +137,9 @@ export const CollectionPage: React.FC<CollectionPageProps> = ({
     setCurrentIndex(currentIndexRef.current + 1);
   }, [totalProducts, isReducedMotion, releaseLock]);
 
-  // C26 & C27 — Dynamic direct product inquiry handler
+  // C26 & C27 — Dynamic direct product inquiry handler routed to WhatsApp
   const handleInquire = useCallback((product: CollectionProduct) => {
-    const formattedNum = String(product.index).padStart(2, '0');
-    setEnquiryMessage(
-      `Hello, I would like to enquire about the ${product.name} belt (No. ${formattedNum}) from your collection.`
-    );
-    setActiveModal('enquire');
+    GlobalEnquiryRouter.openProduct(product.name, product.index);
   }, []);
 
   // Keyboard navigation (ArrowLeft & ArrowRight with input focus guards)
@@ -177,7 +174,7 @@ export const CollectionPage: React.FC<CollectionPageProps> = ({
       {/* Reusable Site Header with Brand Navigation */}
       <Header
         onOpenCatalogue={() => setActiveModal('catalogue')}
-        onOpenEnquire={() => setActiveModal('enquire')}
+        onOpenEnquire={() => GlobalEnquiryRouter.openGeneral()}
         onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
         isMobileMenuOpen={isMobileMenuOpen}
       />
@@ -220,7 +217,7 @@ export const CollectionPage: React.FC<CollectionPageProps> = ({
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         onOpenCatalogue={() => setActiveModal('catalogue')}
-        onOpenEnquire={() => setActiveModal('enquire')}
+        onOpenEnquire={() => GlobalEnquiryRouter.openGeneral()}
       />
 
       {/* Reusable Modals for Catalogue & Bespoke Enquiry (Prefilled with selected product) */}

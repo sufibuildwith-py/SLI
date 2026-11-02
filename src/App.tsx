@@ -9,6 +9,7 @@ import { AboutSection } from './components/AboutSection';
 import { CraftsmanshipSection } from './components/CraftsmanshipSection';
 import { CollectionsSection } from './components/CollectionsSection';
 import { CollectionPage } from './components/collection/CollectionPage';
+import { ContactSection, GlobalEnquiryRouter } from './components/contact';
 import { MobileMenu } from './components/MobileMenu';
 import { Modals } from './components/Modals';
 import { ModalType } from './types';
@@ -325,6 +326,14 @@ export default function App() {
     );
   }
 
+  if (sectionFilter === 'contact') {
+    return (
+      <div className="sli-page-root">
+        <ContactSection isReducedMotion={true} />
+      </div>
+    );
+  }
+
   return (
     <div className="sli-page-root">
       {/* 1. Hero Viewport Section */}
@@ -338,7 +347,7 @@ export default function App() {
         {/* Header with Monogram, Centred 22s Nav, and Right Action Pills */}
         <Header
           onOpenCatalogue={() => setActiveModal('catalogue')}
-          onOpenEnquire={() => setActiveModal('enquire')}
+          onOpenEnquire={() => GlobalEnquiryRouter.openGeneral()}
           onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
           isMobileMenuOpen={isMobileMenuOpen}
         />
@@ -362,15 +371,18 @@ export default function App() {
       {/* 4. Luxury Collections Editorial Background Stage */}
       <CollectionsSection isReducedMotion={isReducedMotion} />
 
-      {/* 5. Responsive Mobile Drawer (< 820px) */}
+      {/* 5. Luxury Atelier Contact Experience & WhatsApp Integration */}
+      <ContactSection isReducedMotion={isReducedMotion} />
+
+      {/* 6. Responsive Mobile Drawer (< 820px) */}
       <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         onOpenCatalogue={() => setActiveModal('catalogue')}
-        onOpenEnquire={() => setActiveModal('enquire')}
+        onOpenEnquire={() => GlobalEnquiryRouter.openGeneral()}
       />
 
-      {/* 4. Luxury Modals for Catalogue, Bespoke Enquiry, and Collections */}
+      {/* 7. Luxury Modals for Catalogue, Bespoke Enquiry, and Collections */}
       <Modals
         activeModal={activeModal}
         onClose={() => setActiveModal(null)}

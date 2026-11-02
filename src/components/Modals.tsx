@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, CheckCircle2, Send, Sparkles } from 'lucide-react';
+import { X, Download, Sparkles } from 'lucide-react';
 import { ModalType } from '../types';
+import { GlobalEnquiryRouter, WhatsAppIcon, WHATSAPP_CONFIG } from './contact';
 
 interface ModalsProps {
   activeModal: ModalType;
@@ -10,7 +11,6 @@ interface ModalsProps {
 }
 
 export const Modals: React.FC<ModalsProps> = ({ activeModal, onClose, initialMessage }) => {
-  const [enquirySent, setEnquirySent] = useState(false);
   const [formState, setFormState] = useState({ name: '', email: '', message: '' });
 
   useEffect(() => {
@@ -21,12 +21,9 @@ export const Modals: React.FC<ModalsProps> = ({ activeModal, onClose, initialMes
 
   const handleEnquirySubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setEnquirySent(true);
-    setTimeout(() => {
-      setEnquirySent(false);
-      onClose();
-      setFormState({ name: '', email: '', message: '' });
-    }, 2200);
+    GlobalEnquiryRouter.openBespoke(formState.name, formState.email, formState.message);
+    onClose();
+    setFormState({ name: '', email: '', message: '' });
   };
 
   return (
@@ -103,53 +100,60 @@ export const Modals: React.FC<ModalsProps> = ({ activeModal, onClose, initialMes
                   Whether for private commissions, architectural leather installations, or curated commercial collections, our master craftsmen are at your service.
                 </p>
 
-                {enquirySent ? (
-                  <div className="enquiry-success-box">
-                    <CheckCircle2 size={36} className="success-icon" />
-                    <h4>Inquiry Received</h4>
-                    <p>Our head craft liaison will contact you within 24 hours.</p>
+                <form onSubmit={handleEnquirySubmit} className="enquiry-form">
+                  <div className="form-group">
+                    <label htmlFor="sli-name">Full Name</label>
+                    <input
+                      id="sli-name"
+                      type="text"
+                      required
+                      placeholder="e.g. Lord Sterling Vance"
+                      value={formState.name}
+                      onChange={(e) => setFormState({ ...formState, name: e.target.value })}
+                    />
                   </div>
-                ) : (
-                  <form onSubmit={handleEnquirySubmit} className="enquiry-form">
-                    <div className="form-group">
-                      <label htmlFor="sli-name">Full Name</label>
-                      <input
-                        id="sli-name"
-                        type="text"
-                        required
-                        placeholder="e.g. Lord Sterling Vance"
-                        value={formState.name}
-                        onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="sli-email">Email Address</label>
-                      <input
-                        id="sli-email"
-                        type="email"
-                        required
-                        placeholder="client@atelier.com"
-                        value={formState.email}
-                        onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="sli-msg">Project Scope or Piece of Interest</label>
-                      <textarea
-                        id="sli-msg"
-                        rows={3}
-                        required
-                        placeholder="Detail your requirements or inquiry..."
-                        value={formState.message}
-                        onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                      />
-                    </div>
-                    <button type="submit" className="sli-cta-button full-width">
-                      <Send size={15} />
-                      <span>Transmit Request</span>
-                    </button>
-                  </form>
-                )}
+                  <div className="form-group">
+                    <label htmlFor="sli-email">Email Address</label>
+                    <input
+                      id="sli-email"
+                      type="email"
+                      required
+                      placeholder="client@atelier.com"
+                      value={formState.email}
+                      onChange={(e) => setFormState({ ...formState, email: e.target.value })}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="sli-msg">Project Scope or Piece of Interest</label>
+                    <textarea
+                      id="sli-msg"
+                      rows={3}
+                      required
+                      placeholder="Detail your requirements or inquiry..."
+                      value={formState.message}
+                      onChange={(e) => setFormState({ ...formState, message: e.target.value })}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="sli-cta-button full-width"
+                    style={{ gap: '10px', justifyContent: 'center' }}
+                  >
+                    <WhatsAppIcon size={16} />
+                    <span>Continue on WhatsApp</span>
+                  </button>
+                  <p
+                    style={{
+                      fontSize: '11px',
+                      color: 'rgba(250, 246, 240, 0.6)',
+                      textAlign: 'center',
+                      marginTop: '10px',
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    Pre-fills your inquiry directly to {WHATSAPP_CONFIG.person} ({WHATSAPP_CONFIG.phoneDisplay}) on WhatsApp.
+                  </p>
+                </form>
               </div>
             )}
 

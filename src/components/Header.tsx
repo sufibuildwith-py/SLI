@@ -25,7 +25,7 @@ export const Header: React.FC<HeaderProps> = ({
     { label: 'About', href: isCollectionPage ? '/#about' : '#about' },
     { label: 'Craftsmanship', href: isCollectionPage ? '/#craftsmanship' : '#craftsmanship' },
     { label: 'Collections', href: '/collection' },
-    { label: 'Contact', href: '#contact' },
+    { label: 'Contact', href: isCollectionPage ? '/#contact' : '#contact' },
   ];
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, link: { label: string; href: string }) => {
@@ -41,9 +41,18 @@ export const Header: React.FC<HeaderProps> = ({
       return;
     }
 
-    if (link.label === 'Contact' || link.href === '#contact') {
-      e.preventDefault();
-      onOpenEnquire();
+    if (link.label === 'Contact' || link.href === '#contact' || link.href === '/#contact') {
+      if (isCollectionPage) {
+        e.preventDefault();
+        window.history.pushState({}, '', '/#contact');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+        const el = document.getElementById('contact');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        e.preventDefault();
+        const el = document.getElementById('contact');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }
       return;
     }
 

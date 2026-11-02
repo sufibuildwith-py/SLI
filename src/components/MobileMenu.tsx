@@ -27,12 +27,51 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
     };
   }, [isOpen]);
 
+  const isCollectionPage =
+    typeof window !== 'undefined' &&
+    (window.location.pathname.toLowerCase().startsWith('/collection') ||
+      window.location.pathname.toLowerCase() === '/collection-02' ||
+      window.location.pathname.toLowerCase() === '/belts');
+
   const navLinks = [
-    { label: 'About', href: '#about' },
-    { label: 'Craftsmanship', href: '#craftsmanship' },
-    { label: 'Collections', href: '#collections' },
+    { label: 'About', href: isCollectionPage ? '/#about' : '#about' },
+    { label: 'Craftsmanship', href: isCollectionPage ? '/#craftsmanship' : '#craftsmanship' },
+    { label: 'Collections', href: '/collection' },
     { label: 'Contact', href: '#contact' },
   ];
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, link: { label: string; href: string }) => {
+    onClose();
+
+    if (link.label === 'Collections' || link.href === '/collection') {
+      e.preventDefault();
+      if (!isCollectionPage) {
+        window.history.pushState({}, '', '/collection');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
+
+    if (link.label === 'Contact' || link.href === '#contact') {
+      e.preventDefault();
+      onOpenEnquire();
+      return;
+    }
+
+    if (link.href.startsWith('/#')) {
+      e.preventDefault();
+      window.history.pushState({}, '', link.href);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      const targetId = link.href.replace('/#', '');
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -58,10 +97,23 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
           >
             {/* Header in panel */}
             <div className="mobile-panel-header">
-              <div className="mobile-brand">
+              <a
+                href="/"
+                className="mobile-brand"
+                style={{ textDecoration: 'none' }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onClose();
+                  if (window.location.pathname !== '/' || window.location.search || window.location.hash) {
+                    window.history.pushState({}, '', '/');
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                  }
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              >
                 <span className="mobile-brand-title">SUPREME LEATHER</span>
                 <span className="mobile-brand-subtitle">ATELIER ARCHIVE</span>
-              </div>
+              </a>
               <button
                 type="button"
                 className="mobile-close-btn"
@@ -85,7 +137,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
                     <a
                       href={item.href}
                       className="mobile-nav-link"
-                      onClick={onClose}
+                      onClick={(e) => handleNavClick(e, item)}
                     >
                       <span>{item.label}</span>
                       <ArrowUpRight className="mobile-arrow-icon" size={16} />

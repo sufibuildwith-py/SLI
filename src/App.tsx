@@ -8,6 +8,7 @@ import { HeroBackground } from './components/HeroBackground';
 import { AboutSection } from './components/AboutSection';
 import { CraftsmanshipSection } from './components/CraftsmanshipSection';
 import { CollectionsSection } from './components/CollectionsSection';
+import { CollectionPage } from './components/collection/CollectionPage';
 import { MobileMenu } from './components/MobileMenu';
 import { Modals } from './components/Modals';
 import { ModalType } from './types';
@@ -215,11 +216,90 @@ export default function App() {
     setActiveModal('collections');
   };
 
+  // Synchronized client routing for Page 02 (Belt Collection)
+  const [activePage, setActivePage] = useState<'home' | 'collection'>(() => {
+    if (typeof window === 'undefined') return 'home';
+    const path = window.location.pathname.toLowerCase();
+    const search = new URLSearchParams(window.location.search);
+    const pageParam = search.get('page');
+    const sectionParam = search.get('section');
+    if (
+      path === '/collection' ||
+      path === '/collection-02' ||
+      path === '/belts' ||
+      pageParam === 'collection' ||
+      pageParam === 'collection-02' ||
+      sectionParam === 'collection-02' ||
+      sectionParam === 'belts'
+    ) {
+      return 'collection';
+    }
+    return 'home';
+  });
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.toLowerCase();
+      const search = new URLSearchParams(window.location.search);
+      const pageParam = search.get('page');
+      const sectionParam = search.get('section');
+      if (
+        path === '/collection' ||
+        path === '/collection-02' ||
+        path === '/belts' ||
+        pageParam === 'collection' ||
+        pageParam === 'collection-02' ||
+        sectionParam === 'collection-02' ||
+        sectionParam === 'belts'
+      ) {
+        setActivePage('collection');
+      } else {
+        setActivePage('home');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Scroll to targeted anchor hash when returning or landing on home
+  useEffect(() => {
+    if (activePage === 'home' && typeof window !== 'undefined' && window.location.hash) {
+      const targetId = window.location.hash.replace('#', '');
+      const element = document.getElementById(targetId);
+      if (element) {
+        const timer = setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 50);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [activePage]);
+
+  const navigateToCollection = () => {
+    window.history.pushState({}, '', '/collection');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Section filter query parameter for targeted visual verification & testing
   const sectionFilter =
     typeof window !== 'undefined'
       ? new URLSearchParams(window.location.search).get('section')
       : null;
+
+  if (activePage === 'collection' || sectionFilter === 'collection-02') {
+    return (
+      <div className="sli-page-root">
+        <CollectionPage
+          onNavigateHome={() => {
+            window.history.pushState({}, '', '/');
+            window.dispatchEvent(new PopStateEvent('popstate'));
+          }}
+          isReducedMotion={isReducedMotion}
+        />
+      </div>
+    );
+  }
 
   if (sectionFilter === 'collections') {
     return (
@@ -266,7 +346,7 @@ export default function App() {
         {/* Stage Body: Left Copy & Right Vertical Craftsmanship Cards */}
         <main className="sli-hero-stage-body">
           {/* Left Copy: Eyebrow, Two-Line 69s Headline, Paragraph, Dark Espresso CTA */}
-          <HeroContent onExploreClick={() => setActiveModal('collections')} />
+          <HeroContent onExploreClick={navigateToCollection} />
 
           {/* Right: Three 222x160s Frosted-Glass Craftsmanship Cards */}
           <CraftsmanshipCards onCardClick={handleCardClick} />

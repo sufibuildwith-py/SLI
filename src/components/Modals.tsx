@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Download, CheckCircle2, Send, Sparkles } from 'lucide-react';
 import { ModalType } from '../types';
@@ -6,11 +6,18 @@ import { ModalType } from '../types';
 interface ModalsProps {
   activeModal: ModalType;
   onClose: () => void;
+  initialMessage?: string;
 }
 
-export const Modals: React.FC<ModalsProps> = ({ activeModal, onClose }) => {
+export const Modals: React.FC<ModalsProps> = ({ activeModal, onClose, initialMessage }) => {
   const [enquirySent, setEnquirySent] = useState(false);
   const [formState, setFormState] = useState({ name: '', email: '', message: '' });
+
+  useEffect(() => {
+    if (activeModal === 'enquire' && initialMessage) {
+      setFormState((prev) => ({ ...prev, message: initialMessage }));
+    }
+  }, [activeModal, initialMessage]);
 
   const handleEnquirySubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,10 +177,24 @@ export const Modals: React.FC<ModalsProps> = ({ activeModal, onClose }) => {
                     <span className="item-desc">Architectural leather goods for discerning workspaces.</span>
                   </div>
                 </div>
-                <div className="modal-actions">
+                <div className="modal-actions" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <a
+                    href="/collection"
+                    className="sli-cta-button full-width"
+                    style={{ textDecoration: 'none', justifyContent: 'center' }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.history.pushState({}, '', '/collection');
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                      onClose();
+                    }}
+                  >
+                    <span>Explore Belt Collection (Page 02)</span>
+                  </a>
                   <button
                     type="button"
                     className="sli-cta-button full-width"
+                    style={{ background: 'transparent', border: '1px solid rgba(89, 70, 59, 0.28)', color: 'var(--ink-primary)' }}
                     onClick={() => {
                       onClose();
                     }}

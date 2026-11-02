@@ -15,19 +15,68 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleMobileMenu,
   isMobileMenuOpen,
 }) => {
+  const isCollectionPage =
+    typeof window !== 'undefined' &&
+    (window.location.pathname.toLowerCase().startsWith('/collection') ||
+      window.location.pathname.toLowerCase() === '/collection-02' ||
+      window.location.pathname.toLowerCase() === '/belts');
+
   const navLinks = [
-    { label: 'About', href: '#about' },
-    { label: 'Craftsmanship', href: '#craftsmanship' },
-    { label: 'Collections', href: '#collections' },
+    { label: 'About', href: isCollectionPage ? '/#about' : '#about' },
+    { label: 'Craftsmanship', href: isCollectionPage ? '/#craftsmanship' : '#craftsmanship' },
+    { label: 'Collections', href: '/collection' },
     { label: 'Contact', href: '#contact' },
   ];
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, link: { label: string; href: string }) => {
+    if (link.label === 'Collections' || link.href === '/collection') {
+      e.preventDefault();
+      if (!isCollectionPage) {
+        window.history.pushState({}, '', '/collection');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
+
+    if (link.label === 'Contact' || link.href === '#contact') {
+      e.preventDefault();
+      onOpenEnquire();
+      return;
+    }
+
+    if (link.href.startsWith('/#')) {
+      e.preventDefault();
+      window.history.pushState({}, '', link.href);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      const targetId = link.href.replace('/#', '');
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
     <header className="sli-header" role="banner">
       <div className="sli-header-inner">
         {/* Left: Refined Monogram + Brand Name */}
         <div className="sli-brand-container header-anim-item">
-          <a href="/" className="sli-brand-link" aria-label="Supreme Leather Industries - Home">
+          <a
+            href="/"
+            className="sli-brand-link"
+            aria-label="Supreme Leather Industries - Home"
+            onClick={(e) => {
+              e.preventDefault();
+              if (window.location.pathname !== '/' || window.location.search || window.location.hash) {
+                window.history.pushState({}, '', '/');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          >
             <div className="sli-monogram" aria-hidden="true">
               <span className="sli-monogram-text">SLI</span>
             </div>
@@ -43,7 +92,11 @@ export const Header: React.FC<HeaderProps> = ({
           <ul className="sli-nav-list">
             {navLinks.map((link) => (
               <li key={link.label} className="sli-nav-item">
-                <a href={link.href} className="sli-nav-link">
+                <a
+                  href={link.href}
+                  className="sli-nav-link"
+                  onClick={(e) => handleNavClick(e, link)}
+                >
                   <span className="sli-nav-label">{link.label}</span>
                   <span className="sli-nav-dot" aria-hidden="true" />
                 </a>

@@ -2807,3 +2807,866 @@ html, body {
     transform: none !important;
   }
 }
+
+/* ==========================================================================
+   Supreme Leather Industries — Belt Collection: Page 02 (C01 - C20)
+   Visual Direction: Luxury Leather Editorial / Heritage Craftsmanship
+   ========================================================================== */
+
+.sli-collection-page-root {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: #1e1612;
+  color: #FAF6F0;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* C17 — Shared Craftsmanship Background Plate */
+.sli-belt-collection-bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.sli-belt-collection-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  opacity: 0.88;
+}
+
+.sli-belt-collection-bg-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 95% 80% at 50% 45%, rgba(22, 16, 13, 0.72) 0%, rgba(14, 10, 8, 0.94) 100%);
+}
+
+.sli-belt-collection-bg-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle 900px at 50% 40%, rgba(255, 230, 200, 0.04), transparent 75%);
+}
+
+/* Main Composition Area */
+.sli-belt-collection-main {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: clamp(96px, 12vh, 136px) clamp(24px, 5vw, 72px) clamp(40px, 5vh, 64px);
+  box-sizing: border-box;
+}
+
+.sli-belt-collection-shell {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* C02 — Collection Introduction Header */
+.sli-belt-collection-header {
+  width: 100%;
+  max-width: 760px;
+  text-align: center;
+  margin-bottom: clamp(32px, 4.5vh, 52px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sli-belt-collection-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.sli-belt-eyebrow-accent {
+  width: 16px;
+  height: 1.5px;
+  background-color: var(--accent-brass, #A37C49);
+  display: inline-block;
+}
+
+.sli-belt-eyebrow-text {
+  font-family: var(--font-ui, sans-serif);
+  font-size: clamp(10px, 1vw, 11px);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #D8CAB8;
+}
+
+.sli-belt-collection-title {
+  font-family: var(--font-editorial, 'Cormorant Garamond', serif);
+  font-size: clamp(2.4rem, 5.2vw, 3.8rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: #FAF6F0;
+  margin: 0 0 14px 0;
+  letter-spacing: -0.01em;
+}
+
+.sli-belt-collection-desc {
+  font-family: var(--font-ui, sans-serif);
+  font-size: clamp(0.92rem, 1.3vw, 1.05rem);
+  line-height: 1.65;
+  color: rgba(244, 239, 230, 0.78);
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* C06 — Product Stage (Desktop) */
+.sli-belt-stage {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: clamp(36px, 5vw, 88px);
+  align-items: center;
+  box-sizing: border-box;
+  touch-action: pan-y;
+}
+
+/* C07 — Product Image Container */
+.sli-belt-image-container {
+  position: relative;
+  width: 100%;
+  height: clamp(420px, 58vh, 660px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.sli-belt-image-plinth {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 82%;
+  height: 36px;
+  background: radial-gradient(ellipse at center, rgba(10, 7, 5, 0.75), transparent 70%);
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sli-belt-image-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* C08 — Featured Product Image */
+.sli-belt-featured-image {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  filter: drop-shadow(0 16px 32px rgba(10, 7, 5, 0.58));
+  user-select: none;
+}
+
+/* C09 — Product Information Panel */
+.sli-belt-info-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 460px;
+  box-sizing: border-box;
+}
+
+.sli-belt-copy-frame {
+  width: 100%;
+  min-height: 190px;
+  position: relative;
+}
+
+.sli-belt-copy-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* C10 — Product Counter */
+.sli-belt-counter {
+  font-family: var(--font-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--accent-brass, #A37C49);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sli-belt-counter-current {
+  font-weight: 600;
+  color: #FAF6F0;
+}
+
+.sli-belt-counter-divider {
+  opacity: 0.5;
+}
+
+.sli-belt-counter-total {
+  opacity: 0.7;
+}
+
+/* C11 — Product Name */
+.sli-belt-product-name {
+  font-family: var(--font-editorial, 'Cormorant Garamond', serif);
+  font-size: clamp(2.3rem, 4.4vw, 3.4rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: #FAF6F0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0 0 16px 0;
+}
+
+/* C12 — Product Description */
+.sli-belt-product-desc {
+  font-family: var(--font-ui, sans-serif);
+  font-size: clamp(0.92rem, 1.3vw, 1.05rem);
+  line-height: 1.65;
+  color: rgba(244, 239, 230, 0.82);
+  margin: 0 0 20px 0;
+  min-height: 48px;
+}
+
+/* Hardware Finish & Meta Tags */
+.sli-belt-specs-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.sli-belt-meta-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(89, 70, 59, 0.28);
+  border: 1px solid rgba(163, 124, 73, 0.32);
+  border-radius: 999px;
+  margin-bottom: 0;
+}
+
+.sli-belt-meta-tag-secondary {
+  background: rgba(45, 34, 28, 0.4);
+  border-color: rgba(244, 239, 230, 0.16);
+}
+
+.sli-belt-meta-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--accent-brass, #A37C49);
+}
+
+.sli-belt-meta-dot-accent {
+  background-color: #C5A059;
+}
+
+.sli-belt-meta-text {
+  font-family: var(--font-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #EADBC8;
+}
+
+/* C26 — Direct Product Inquiry CTA */
+.sli-belt-inquiry-container {
+  margin-bottom: 22px;
+}
+
+.sli-belt-inquiry-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 11px 22px;
+  background: rgba(163, 124, 73, 0.12);
+  border: 1px solid rgba(163, 124, 73, 0.4);
+  border-radius: 999px;
+  color: #FAF6F0;
+  font-family: var(--font-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sli-belt-inquiry-btn:hover {
+  background: rgba(163, 124, 73, 0.26);
+  border-color: #C5A059;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.sli-belt-inquiry-btn:focus-visible {
+  outline: 2px solid var(--accent-brass, #A37C49);
+  outline-offset: 3px;
+}
+
+/* C21 — Product Detail Trigger */
+.sli-belt-detail-trigger {
+  position: absolute;
+  bottom: 16px;
+  right: 20px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: rgba(22, 16, 12, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(163, 124, 73, 0.45);
+  border-radius: 999px;
+  color: #EADBC8;
+  font-family: var(--font-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.sli-belt-detail-trigger:hover {
+  background: rgba(163, 124, 73, 0.28);
+  border-color: #C5A059;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.sli-belt-detail-trigger:focus-visible {
+  outline: 2px solid var(--accent-brass, #A37C49);
+  outline-offset: 3px;
+}
+
+/* C13 — Navigation Foundation */
+.sli-belt-nav-foundation {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(244, 239, 230, 0.12);
+}
+
+/* C14 & C15 — Previous & Next Buttons */
+.sli-belt-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sli-belt-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  background: rgba(244, 239, 230, 0.08);
+  border: 1px solid rgba(244, 239, 230, 0.18);
+  border-radius: 999px;
+  color: #FAF6F0;
+  font-family: var(--font-ui, sans-serif);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: default;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.sli-belt-nav-btn:not(:disabled) {
+  cursor: pointer;
+}
+
+.sli-belt-nav-btn:not(:disabled):hover {
+  background: rgba(244, 239, 230, 0.16);
+  border-color: rgba(163, 124, 73, 0.5);
+  color: #FFFFFF;
+}
+
+.sli-belt-nav-btn:not(:disabled):active {
+  transform: scale(0.96);
+}
+
+.sli-belt-nav-btn:focus-visible {
+  outline: 2px solid var(--accent-brass, #A37C49);
+  outline-offset: 3px;
+}
+
+.sli-belt-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: rgba(244, 239, 230, 0.08);
+}
+
+.sli-belt-nav-icon {
+  flex-shrink: 0;
+}
+
+.sli-belt-nav-btn-label {
+  line-height: 1;
+}
+
+/* C16 — Collection Progress Indicator */
+.sli-belt-progress-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.sli-belt-progress-number {
+  font-family: var(--font-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: rgba(244, 239, 230, 0.65);
+}
+
+.sli-belt-progress-track {
+  flex: 1;
+  height: 2px;
+  background: rgba(244, 239, 230, 0.16);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.sli-belt-progress-fill {
+  height: 100%;
+  background: var(--accent-brass, #A37C49);
+  border-radius: 2px;
+  transition: width 0.35s ease;
+}
+
+/* C18 — Collection Footer */
+.sli-belt-collection-footer {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 24px clamp(24px, 5vw, 72px) 44px;
+  box-sizing: border-box;
+}
+
+.sli-belt-footer-divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(244, 239, 230, 0.12);
+  margin-bottom: 22px;
+}
+
+.sli-belt-footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.sli-belt-footer-left,
+.sli-belt-footer-right {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sli-belt-footer-brand {
+  font-family: var(--font-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: rgba(244, 239, 230, 0.85);
+  text-transform: uppercase;
+}
+
+.sli-belt-footer-atelier,
+.sli-belt-footer-tagline {
+  font-family: var(--font-ui, sans-serif);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: rgba(244, 239, 230, 0.5);
+  text-transform: uppercase;
+}
+
+.sli-belt-footer-origin {
+  font-family: var(--font-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--accent-brass, #A37C49);
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   C20 — Responsive Layout Rules
+   ========================================================================== */
+
+/* Tablet (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .sli-belt-stage {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .sli-belt-image-container {
+    height: clamp(380px, 48vh, 520px);
+  }
+
+  .sli-belt-info-panel {
+    max-width: 560px;
+    margin: 0 auto;
+    align-items: center;
+    text-align: center;
+  }
+
+  .sli-belt-copy-group {
+    align-items: center;
+    text-align: center;
+  }
+
+  .sli-belt-counter {
+    justify-content: center;
+  }
+
+  .sli-belt-nav-controls {
+    justify-content: center;
+  }
+
+  .sli-belt-progress-wrapper {
+    margin: 0 auto;
+  }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 767px) {
+  .sli-belt-collection-main {
+    padding: 84px 16px 36px;
+  }
+
+  .sli-belt-collection-header {
+    margin-bottom: 24px;
+  }
+
+  .sli-belt-stage {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .sli-belt-image-container {
+    height: clamp(280px, 42vh, 380px);
+  }
+
+  .sli-belt-info-panel {
+    align-items: center;
+    text-align: center;
+    max-width: 100%;
+    padding: 0 4px;
+  }
+
+  .sli-belt-copy-frame {
+    min-height: 160px;
+  }
+
+  .sli-belt-copy-group {
+    align-items: center;
+    text-align: center;
+  }
+
+  .sli-belt-counter {
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+
+  .sli-belt-product-name {
+    font-size: clamp(2rem, 8vw, 2.5rem);
+    margin-bottom: 12px;
+  }
+
+  .sli-belt-product-desc {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .sli-belt-meta-tag {
+    margin-bottom: 22px;
+  }
+
+  .sli-belt-nav-foundation {
+    align-items: center;
+  }
+
+  .sli-belt-nav-controls {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .sli-belt-nav-btn {
+    flex: 1;
+    max-width: 160px;
+    justify-content: center;
+    padding: 12px 18px;
+  }
+
+  .sli-belt-progress-wrapper {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .sli-belt-collection-footer {
+    padding: 20px 16px 36px;
+  }
+
+  .sli-belt-footer-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .sli-belt-detail-trigger {
+    bottom: 12px;
+    right: 14px;
+    padding: 6px 14px;
+    font-size: 10px;
+  }
+
+  .sli-belt-inquiry-btn {
+    width: 100%;
+    padding: 12px 18px;
+  }
+}
+
+/* ==========================================================================
+   C22 — ProductDetailViewer (Archive Close-Up Modal)
+   ========================================================================== */
+.sli-detail-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(10, 7, 5, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.sli-detail-container {
+  position: relative;
+  width: 100%;
+  max-width: 880px;
+  max-height: 90vh;
+  background: #150F0B;
+  border: 1px solid rgba(163, 124, 73, 0.35);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.75);
+}
+
+.sli-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(244, 239, 230, 0.08);
+}
+
+.sli-detail-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-ui, sans-serif);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--accent-brass, #A37C49);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.sli-detail-title {
+  font-family: var(--font-display, serif);
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: #FAF6F0;
+  margin: 0 0 4px 0;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sli-detail-subtitle {
+  font-family: var(--font-ui, sans-serif);
+  font-size: 12px;
+  color: rgba(244, 239, 230, 0.65);
+  margin: 0;
+}
+
+.sli-detail-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(244, 239, 230, 0.06);
+  border: 1px solid rgba(244, 239, 230, 0.15);
+  color: #FAF6F0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sli-detail-close-btn:hover {
+  background: rgba(244, 239, 230, 0.16);
+  border-color: rgba(163, 124, 73, 0.5);
+  color: #FFFFFF;
+}
+
+.sli-detail-close-btn:focus-visible {
+  outline: 2px solid var(--accent-brass, #A37C49);
+  outline-offset: 3px;
+}
+
+.sli-detail-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  min-height: 280px;
+  max-height: 55vh;
+  background: #0E0A07;
+  overflow: hidden;
+}
+
+.sli-detail-image {
+  max-width: 100%;
+  max-height: 52vh;
+  object-fit: contain;
+  border-radius: 6px;
+  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.6));
+}
+
+.sli-detail-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 24px;
+  background: rgba(244, 239, 230, 0.02);
+  border-top: 1px solid rgba(244, 239, 230, 0.06);
+}
+
+.sli-detail-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(244, 239, 230, 0.08);
+  border: 1px solid rgba(244, 239, 230, 0.15);
+  color: #FAF6F0;
+  font-family: var(--font-ui, sans-serif);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sli-detail-nav-btn:hover {
+  background: rgba(244, 239, 230, 0.18);
+  border-color: rgba(163, 124, 73, 0.4);
+}
+
+.sli-detail-nav-counter {
+  font-family: var(--font-ui, sans-serif);
+  font-size: 12px;
+  color: rgba(244, 239, 230, 0.7);
+  letter-spacing: 0.1em;
+}
+
+.sli-detail-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(244, 239, 230, 0.08);
+  background: #150F0B;
+}
+
+.sli-detail-caption {
+  font-family: var(--font-ui, sans-serif);
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(244, 239, 230, 0.75);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .sli-detail-backdrop {
+    padding: 12px;
+  }
+
+  .sli-detail-container {
+    max-height: 94vh;
+  }
+
+  .sli-detail-stage {
+    padding: 16px;
+    max-height: 48vh;
+  }
+
+  .sli-detail-image {
+    max-height: 44vh;
+  }
+}
